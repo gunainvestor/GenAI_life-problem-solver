@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.LifeProblemSolver" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Minimal customizations, Compose will use Material3. -->
+    </style>
+</resources> 

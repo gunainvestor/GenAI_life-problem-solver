@@ -1,0 +1,434 @@
+package com.lifeproblemsolver.app.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lifeproblemsolver.app.data.model.Priority
+import com.lifeproblemsolver.app.ui.viewmodel.ProblemDetailUiState
+import com.lifeproblemsolver.app.ui.viewmodel.ProblemDetailViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProblemDetailScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: ProblemDetailViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    
+    LaunchedEffect(uiState.isDeleted) {
+        if (uiState.isDeleted) {
+            onNavigateBack()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Problem Details") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    uiState.problem?.let { problem ->
+                        if (!problem.isResolved) {
+                            IconButton(onClick = { viewModel.markAsResolved() }) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = "Mark as Resolved")
+                            }
+                        }
+                        IconButton(onClick = { viewModel.deleteProblem() }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        }
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            uiState.error != null -> {
+                ErrorContent(
+                    error = uiState.error!!,
+                    onRetry = { /* Reload problem */ },
+                    onClearError = { viewModel.clearError() }
+                )
+            }
+            uiState.problem != null -> {
+                ProblemDetailContent(
+                    problem = uiState.problem!!,
+                    isGeneratingAi = uiState.isGeneratingAi,
+                    onGenerateAiSolution = { viewModel.generateAiSolution() }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProblemDetailContent(
+    problem: com.lifeproblemsolver.app.data.model.Problem,
+    isGeneratingAi: Boolean,
+    onGenerateAiSolution: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Problem header
+        ProblemHeader(problem = problem)
+        
+        // Problem details
+        ProblemDetails(problem = problem)
+        
+        // AI Solution section
+        AiSolutionSection(
+            problem = problem,
+            isGeneratingAi = isGeneratingAi,
+            onGenerateAiSolution = onGenerateAiSolution
+        )
+    }
+}
+
+@Composable
+private fun ProblemHeader(problem: com.lifeproblemsolver.app.data.model.Problem) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = problem.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PriorityChip(priority = problem.priority)
+                
+                if (problem.category.isNotBlank()) {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text(problem.category) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Category,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    )
+                }
+                
+                if (problem.isResolved) {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text("Resolved") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProblemDetails(problem: com.lifeproblemsolver.app.data.model.Problem) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Description
+            DetailSection(
+                title = "Description",
+                icon = Icons.Default.Description,
+                content = problem.description
+            )
+            
+            // Notes
+            if (problem.notes.isNotBlank()) {
+                DetailSection(
+                    title = "Notes",
+                    icon = Icons.Default.Note,
+                    content = problem.notes
+                )
+            }
+            
+            // Dates
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                DetailSection(
+                    title = "Created",
+                    icon = Icons.Default.Schedule,
+                    content = formatDate(problem.createdAt),
+                    modifier = Modifier.weight(1f)
+                )
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                DetailSection(
+                    title = "Updated",
+                    icon = Icons.Default.Update,
+                    content = formatDate(problem.updatedAt),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AiSolutionSection(
+    problem: com.lifeproblemsolver.app.data.model.Problem,
+    isGeneratingAi: Boolean,
+    onGenerateAiSolution: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Psychology,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "AI Solution",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            
+            if (problem.aiSuggestion.isBlank()) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "No AI solution generated yet",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    Button(
+                        onClick = onGenerateAiSolution,
+                        enabled = !isGeneratingAi
+                    ) {
+                        if (isGeneratingAi) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Generating...")
+                        } else {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Generate AI Solution")
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    text = problem.aiSuggestion,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                Button(
+                    onClick = onGenerateAiSolution,
+                    enabled = !isGeneratingAi,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isGeneratingAi) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Regenerating...")
+                    } else {
+                        Icon(Icons.Default.Refresh, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Regenerate Solution")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailSection(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Text(
+            text = content,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun PriorityChip(priority: Priority) {
+    val (color, icon, text) = when (priority) {
+        Priority.LOW -> Triple(
+            MaterialTheme.colorScheme.tertiary,
+            Icons.Default.LowPriority,
+            "Low"
+        )
+        Priority.MEDIUM -> Triple(
+            MaterialTheme.colorScheme.primary,
+            Icons.Default.PriorityHigh,
+            "Medium"
+        )
+        Priority.HIGH -> Triple(
+            MaterialTheme.colorScheme.error,
+            Icons.Default.PriorityHigh,
+            "High"
+        )
+        Priority.URGENT -> Triple(
+            MaterialTheme.colorScheme.error,
+            Icons.Default.Warning,
+            "Urgent"
+        )
+    }
+    
+    AssistChip(
+        onClick = { },
+        label = { Text(text) },
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = color
+            )
+        }
+    )
+}
+
+@Composable
+private fun ErrorContent(
+    error: String,
+    onRetry: () -> Unit,
+    onClearError: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = "Something went wrong",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(onClick = onRetry) {
+                    Text("Retry")
+                }
+                OutlinedButton(onClick = onClearError) {
+                    Text("Dismiss")
+                }
+            }
+        }
+    }
+}
+
+private fun formatDate(instant: Instant): String {
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return "${localDateTime.monthNumber}/${localDateTime.dayOfMonth}/${localDateTime.year}"
+} 
