@@ -2,6 +2,7 @@ package com.lifeproblemsolver.app.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lifeproblemsolver.app.data.model.Problem
 import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.ui.components.*
@@ -59,7 +61,7 @@ fun CalendarScreen(
                     )
                 )
             )
-            .padding(16.dp)
+            .padding(12.dp)
     ) {
         // Month navigation header
         MonthNavigationHeader(
@@ -68,7 +70,7 @@ fun CalendarScreen(
             onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Calendar grid
         CalendarGrid(
@@ -78,7 +80,7 @@ fun CalendarScreen(
             onDateSelected = { selectedDate = it }
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Problems for selected date
         SelectedDateProblems(
@@ -100,26 +102,34 @@ fun MonthNavigationHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onPreviousMonth) {
+        IconButton(
+            onClick = onPreviousMonth,
+            modifier = Modifier.size(36.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.ChevronLeft,
                 contentDescription = "Previous Month",
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
         }
         
         Text(
             text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
         
-        IconButton(onClick = onNextMonth) {
+        IconButton(
+            onClick = onNextMonth,
+            modifier = Modifier.size(36.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Next Month",
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -148,7 +158,7 @@ fun CalendarGrid(
             listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { dayName ->
                 Text(
                     text = dayName,
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -157,14 +167,14 @@ fun CalendarGrid(
             }
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         
-        // Calendar grid
+        // Calendar grid - compact height, no scrolling
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.height(280.dp)
+            horizontalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+            modifier = Modifier.height(160.dp)
         ) {
             // Previous month days
             items(daysFromPreviousMonth) {
@@ -177,7 +187,7 @@ fun CalendarGrid(
                 ) {
                     Text(
                         text = "",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                 }
@@ -214,7 +224,7 @@ fun CalendarGrid(
                 ) {
                     Text(
                         text = "",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                 }
@@ -244,7 +254,7 @@ fun DayCell(
                 }
             )
             .border(
-                width = if (isToday && !isSelected) 2.dp else 0.dp,
+                width = if (isToday && !isSelected) 1.dp else 0.dp,
                 color = MaterialTheme.colorScheme.primary,
                 shape = CircleShape
             )
@@ -257,7 +267,7 @@ fun DayCell(
         ) {
             Text(
                 text = day.toString(),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
                 color = when {
                     isSelected -> MaterialTheme.colorScheme.onPrimary
@@ -269,7 +279,7 @@ fun DayCell(
             if (hasProblems) {
                 Box(
                     modifier = Modifier
-                        .size(6.dp)
+                        .size(3.dp)
                         .clip(CircleShape)
                         .background(
                             when {
@@ -301,6 +311,16 @@ fun SelectedDateProblems(
     problems: List<Problem>,
     onNavigateToProblem: (Long) -> Unit
 ) {
+    // Sort problems by priority: URGENT -> HIGH -> MEDIUM -> LOW
+    val sortedProblems = problems.sortedBy { problem ->
+        when (problem.priority) {
+            Priority.URGENT -> 0
+            Priority.HIGH -> 1
+            Priority.MEDIUM -> 2
+            Priority.LOW -> 3
+        }
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -320,7 +340,7 @@ fun SelectedDateProblems(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            if (problems.isEmpty()) {
+            if (sortedProblems.isEmpty()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -334,8 +354,8 @@ fun SelectedDateProblems(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(problems) { problem ->
-                        ProblemCard(
+                    items(sortedProblems) { problem ->
+                        SortedProblemCard(
                             problem = problem,
                             onClick = { onNavigateToProblem(problem.id) }
                         )
@@ -347,33 +367,176 @@ fun SelectedDateProblems(
 }
 
 @Composable
-fun ProblemCard(
+fun SortedProblemCard(
     problem: Problem,
     onClick: () -> Unit
 ) {
+    // Get priority color for indicators only
+    val priorityColor = when (problem.priority) {
+        Priority.URGENT -> MaterialTheme.colorScheme.error
+        Priority.HIGH -> MaterialTheme.colorScheme.error
+        Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
+        Priority.LOW -> MaterialTheme.colorScheme.secondary
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
-            Text(
-                text = problem.title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = problem.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                
+                // Subtle priority indicator
+                Surface(
+                    shape = CircleShape,
+                    color = priorityColor,
+                    modifier = Modifier.size(6.dp)
+                ) { }
+            }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
             Text(
                 text = problem.description,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2
             )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Priority chip
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = priorityColor.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, priorityColor.copy(alpha = 0.3f))
+                    ) {
+                        Text(
+                            text = problem.priority.name,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = priorityColor,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.8f
+                        )
+                    }
+                    
+                    Text(
+                        text = problem.category,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProblemCard(
+    problem: Problem,
+    onClick: () -> Unit
+) {
+    // Get priority-based colors and gradient
+    val (backgroundColor, borderColor, textColor) = when (problem.priority) {
+        Priority.URGENT -> Triple(
+            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+            MaterialTheme.colorScheme.error,
+            MaterialTheme.colorScheme.onErrorContainer
+        )
+        Priority.HIGH -> Triple(
+            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+            MaterialTheme.colorScheme.onErrorContainer
+        )
+        Priority.MEDIUM -> Triple(
+            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.onTertiaryContainer
+        )
+        Priority.LOW -> Triple(
+            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.secondary,
+            MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .border(
+                width = 2.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(8.dp)
+            ),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = problem.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                
+                // Priority indicator
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = borderColor,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = problem.priority.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+            
+            Text(
+                text = problem.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2
+            )
+            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
