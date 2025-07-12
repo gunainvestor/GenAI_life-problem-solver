@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NT2MCXD6');</script>
+    <!-- End Google Tag Manager -->
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTM Tracking Test - Life Problem Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #6366f1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #4f46e5;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        #dataLayerOutput {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NT2MCXD6"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <h1>🔍 GTM Tracking Test</h1>
+    <p>This page tests if Google Tag Manager tracking is working properly.</p>
+
+    <div class="test-section">
+        <h2>📊 GTM Status Check</h2>
+        <div id="gtmStatus" class="status info">Checking GTM status...</div>
+        <div id="dataLayerStatus" class="status info">Checking dataLayer...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Test Download Tracking</h2>
+        <p>Click these buttons to test download tracking events:</p>
+        <button class="test-button" onclick="testDownloadClick('hero')">Test Hero Download</button>
+        <button class="test-button" onclick="testDownloadClick('pricing_free')">Test Pricing Free</button>
+        <button class="test-button" onclick="testDownloadClick('pricing_pro')">Test Pricing Pro</button>
+        <button class="test-button" onclick="testDownloadClick('main_download')">Test Main Download</button>
+        <button class="test-button" onclick="testCustomEvent()">Test Custom Event</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 DataLayer Events</h2>
+        <p>Recent events pushed to dataLayer:</p>
+        <div id="dataLayerOutput">No events yet...</div>
+        <button class="test-button" onclick="clearDataLayerOutput()">Clear Output</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 Links</h2>
+        <p><a href="https://gunainvestor.github.io/GenAI_life-problem-solver/" target="_blank">View Main Landing Page</a></p>
+        <p><a href="https://tagmanager.google.com/" target="_blank">Google Tag Manager</a></p>
+        <p><a href="https://analytics.google.com/" target="_blank">Google Analytics</a></p>
+    </div>
+
+    <script>
+        // Track all dataLayer events
+        let originalDataLayer = window.dataLayer || [];
+        window.dataLayer = originalDataLayer;
+        
+        // Override dataLayer.push to capture all events
+        const originalPush = window.dataLayer.push;
+        window.dataLayer.push = function(...args) {
+            const result = originalPush.apply(this, args);
+            logDataLayerEvent(args[0]);
+            return result;
+        };
+
+        function logDataLayerEvent(event) {
+            const output = document.getElementById('dataLayerOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const eventLog = `[${timestamp}] ${JSON.stringify(event, null, 2)}\n\n`;
+            output.textContent = eventLog + output.textContent;
+        }
+
+        function clearDataLayerOutput() {
+            document.getElementById('dataLayerOutput').textContent = 'Cleared...';
+        }
+
+        // Test download click function (same as main site)
+        function testDownloadClick(location) {
+            // Google Tag Manager event tracking
+            dataLayer.push({
+                'event': 'download_click',
+                'event_category': 'engagement',
+                'event_label': location,
+                'value': 1
+            });
+            
+            // Also track as a custom event
+            dataLayer.push({
+                'event': 'apk_download',
+                'event_category': 'download',
+                'event_label': location,
+                'custom_parameter_1': 'LifeProblemSolver-Tag6.apk'
+            });
+            
+            console.log(`Download clicked from: ${location}`);
+            
+            // Show success message
+            showStatus('success', `✅ Download click tracked from: ${location}`);
+        }
+
+        function testCustomEvent() {
+            dataLayer.push({
+                'event': 'test_event',
+                'event_category': 'testing',
+                'event_label': 'manual_test',
+                'test_timestamp': new Date().toISOString()
+            });
+            
+            showStatus('success', '✅ Custom test event tracked');
+        }
+
+        function showStatus(type, message) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            document.querySelector('.test-section').appendChild(statusDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                statusDiv.remove();
+            }, 3000);
+        }
+
+        // Check GTM status
+        function checkGTMStatus() {
+            const gtmStatus = document.getElementById('gtmStatus');
+            const dataLayerStatus = document.getElementById('dataLayerStatus');
+            
+            // Check if GTM is loaded
+            if (typeof window.dataLayer !== 'undefined') {
+                gtmStatus.className = 'status success';
+                gtmStatus.textContent = '✅ Google Tag Manager is loaded and working';
+            } else {
+                gtmStatus.className = 'status error';
+                gtmStatus.textContent = '❌ Google Tag Manager not detected';
+            }
+            
+            // Check dataLayer
+            if (window.dataLayer && Array.isArray(window.dataLayer)) {
+                dataLayerStatus.className = 'status success';
+                dataLayerStatus.textContent = `✅ dataLayer is available (${window.dataLayer.length} events)`;
+            } else {
+                dataLayerStatus.className = 'status error';
+                dataLayerStatus.textContent = '❌ dataLayer not available';
+            }
+        }
+
+        // Check status when page loads
+        window.addEventListener('load', function() {
+            setTimeout(checkGTMStatus, 1000); // Wait for GTM to load
+        });
+
+        // Log initial dataLayer state
+        console.log('Initial dataLayer:', window.dataLayer);
+    </script>
+</body>
+</html> 
