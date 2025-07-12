@@ -1,5 +1,6 @@
 package com.lifeproblemsolver.app.ui.navigation
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
@@ -31,7 +32,10 @@ fun NavGraph(
         composable(Screen.ProblemList.route) {
             ProblemListScreen(
                 onNavigateToAddProblem = { navController.navigate(Screen.AddProblem.route) },
-                onProblemDetailNav = { problemId -> navController.navigate(Screen.ProblemDetail.createRoute(problemId)) },
+                onProblemDetailNav = { problemId -> 
+                    Log.d("NavGraph", "Navigating to problem detail with ID: $problemId")
+                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
+                },
                 onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
                 viewModel = hiltViewModel()
             )
@@ -42,7 +46,10 @@ fun NavGraph(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onProblemDetailNav = { problemId -> navController.navigate(Screen.ProblemDetail.createRoute(problemId)) }
+                onProblemDetailNav = { problemId -> 
+                    Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
+                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
+                }
             )
         }
         
@@ -53,6 +60,7 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val problemId = backStackEntry.arguments?.getLong("problemId") ?: 0L
+            Log.d("NavGraph", "ProblemDetailScreen received problemId: $problemId")
             ProblemDetailScreen(
                 problemId = problemId,
                 onNavigateBack = {

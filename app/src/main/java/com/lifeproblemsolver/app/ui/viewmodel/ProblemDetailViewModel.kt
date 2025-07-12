@@ -22,14 +22,22 @@ class ProblemDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
-    private val problemId: Long = checkNotNull(savedStateHandle["problemId"]).toString().toLong()
+    private val problemId: Long = savedStateHandle.get<Long>("problemId") ?: 0L
     
     private val _uiState = MutableStateFlow(ProblemDetailUiState())
     val uiState: StateFlow<ProblemDetailUiState> = _uiState.asStateFlow()
     
     init {
-        loadProblem()
-        checkRateLimit()
+        if (problemId > 0) {
+            loadProblem()
+            checkRateLimit()
+        } else {
+            _uiState.update { 
+                it.copy(
+                    error = "Invalid problem ID. Please try again."
+                )
+            }
+        }
     }
 
     private fun checkRateLimit() {
