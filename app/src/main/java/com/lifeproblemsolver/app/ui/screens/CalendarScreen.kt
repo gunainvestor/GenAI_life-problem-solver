@@ -73,12 +73,19 @@ fun CalendarScreen(
         Spacer(modifier = Modifier.height(8.dp))
         
         // Calendar grid
-        CalendarGrid(
-            currentMonth = currentMonth,
-            selectedDate = selectedDate,
-            groupedProblems = groupedProblems,
-            onDateSelected = { selectedDate = it }
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            CalendarGrid(
+                currentMonth = currentMonth,
+                selectedDate = selectedDate,
+                groupedProblems = groupedProblems,
+                onDateSelected = { selectedDate = it }
+            )
+        }
         
         Spacer(modifier = Modifier.height(8.dp))
         
@@ -146,8 +153,17 @@ fun CalendarGrid(
     val firstDayOfMonth = currentMonth.atDay(1)
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value
     
-    // Calculate the number of days from previous month to show
-    val daysFromPreviousMonth = if (firstDayOfWeek == 1) 0 else firstDayOfWeek - 1
+    // Calculate the number of days from previous month to show (Monday-Friday only)
+    val daysFromPreviousMonth = when (firstDayOfWeek) {
+        1 -> 0 // Monday
+        2 -> 1 // Tuesday
+        3 -> 2 // Wednesday
+        4 -> 3 // Thursday
+        5 -> 4 // Friday
+        6 -> 0 // Saturday - start fresh
+        7 -> 0 // Sunday - start fresh
+        else -> 0
+    }
     
     Column {
         // Day headers
@@ -155,7 +171,7 @@ fun CalendarGrid(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { dayName ->
+            listOf("Mon", "Tue", "Wed", "Thu", "Fri").forEach { dayName ->
                 Text(
                     text = dayName,
                     style = MaterialTheme.typography.labelSmall,
@@ -171,10 +187,10 @@ fun CalendarGrid(
         
         // Calendar grid - compact height, no scrolling
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            horizontalArrangement = Arrangement.spacedBy(1.dp),
-            verticalArrangement = Arrangement.spacedBy(1.dp),
-            modifier = Modifier.height(160.dp)
+            columns = GridCells.Fixed(5),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.height(200.dp)
         ) {
             // Previous month days
             items(daysFromPreviousMonth) {
@@ -193,27 +209,34 @@ fun CalendarGrid(
                 }
             }
             
-            // Current month days
+            // Current month days (weekdays only)
             items(daysInMonth) { day ->
                 val date = currentMonth.atDay(day + 1)
-                val isSelected = date == selectedDate
-                val isToday = date == LocalDate.now()
-                val hasProblems = groupedProblems.containsKey(date)
-                val problemsForDay = groupedProblems[date] ?: emptyList()
-                
-                DayCell(
-                    day = day + 1,
-                    isSelected = isSelected,
-                    isToday = isToday,
-                    hasProblems = hasProblems,
-                    problemCount = problemsForDay.size,
-                    onClick = { onDateSelected(date) }
-                )
+                // Only show weekdays (Monday = 1, Friday = 5)
+                if (date.dayOfWeek.value in 1..5) {
+                    val isSelected = date == selectedDate
+                    val isToday = date == LocalDate.now()
+                    val hasProblems = groupedProblems.containsKey(date)
+                    val problemsForDay = groupedProblems[date] ?: emptyList()
+                    
+                    DayCell(
+                        day = day + 1,
+                        isSelected = isSelected,
+                        isToday = isToday,
+                        hasProblems = hasProblems,
+                        problemCount = problemsForDay.size,
+                        onClick = { onDateSelected(date) }
+                    )
+                }
             }
             
             // Next month days to fill the grid
-            val totalCells = 42 // 6 rows * 7 columns
-            val remainingCells = totalCells - daysFromPreviousMonth - daysInMonth
+            val weekdayCount = (1..daysInMonth).count { day ->
+                val date = currentMonth.atDay(day)
+                date.dayOfWeek.value in 1..5
+            }
+            val totalCells = 35 // 7 rows * 5 columns
+            val remainingCells = totalCells - daysFromPreviousMonth - weekdayCount
             items(remainingCells) {
                 Box(
                     modifier = Modifier
