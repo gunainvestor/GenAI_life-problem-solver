@@ -30,7 +30,7 @@ class ApiKeySettingsViewModelTest {
         
         // Then
         assertEquals(false, uiState.hasUserApiKey)
-        assertEquals(10, uiState.remainingRequests)
+        assertEquals(5, uiState.remainingRequests)
         assertEquals(false, uiState.isLoading)
         assertNull(uiState.error)
     }
@@ -59,7 +59,7 @@ class ApiKeySettingsViewModelTest {
         
         // Then
         assertEquals(false, uiState.hasUserApiKey)
-        assertEquals(7, uiState.remainingRequests) // 10 - 3 = 7
+        assertEquals(2, uiState.remainingRequests) // 5 - 3 = 2
     }
     
     @Test

@@ -94,7 +94,7 @@ class ApiKeySettingsViewModel @Inject constructor(
 
 data class ApiKeySettingsUiState(
     val hasUserApiKey: Boolean = false,
-    val remainingRequests: Int = 10,
+    val remainingRequests: Int = 5,
     val isLoading: Boolean = false,
     val error: String? = null
 ) 

@@ -84,7 +84,7 @@ class RateLimitedAiServiceTest {
             }
         }
         
-        assertTrue(exception.message?.contains("10") == true)
+        assertTrue(exception.message?.contains("5") == true)
     }
     
     @Test
