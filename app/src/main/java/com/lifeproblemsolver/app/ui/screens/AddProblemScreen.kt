@@ -36,6 +36,7 @@ fun AddProblemScreen(
     
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess && uiState.createdProblemId > 0) {
+            Log.d("AddProblemScreen", "Navigating to problem detail with ID: ${uiState.createdProblemId}")
             onProblemDetailNav(uiState.createdProblemId)
         }
     }
