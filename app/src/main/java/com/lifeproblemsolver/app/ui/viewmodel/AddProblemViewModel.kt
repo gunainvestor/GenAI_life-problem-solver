@@ -6,6 +6,7 @@ import com.lifeproblemsolver.app.data.analytics.AnalyticsService
 import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.data.repository.ProblemRepository
+import com.lifeproblemsolver.app.data.repository.UsageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,11 +18,51 @@ import javax.inject.Inject
 @HiltViewModel
 class AddProblemViewModel @Inject constructor(
     private val repository: ProblemRepository,
-    private val analyticsService: AnalyticsService
+    private val analyticsService: AnalyticsService,
+    private val usageRepository: UsageRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddProblemUiState())
     val uiState: StateFlow<AddProblemUiState> = _uiState.asStateFlow()
+
+    init {
+        checkRateLimit()
+    }
+
+    private fun checkRateLimit() {
+        viewModelScope.launch {
+            try {
+                val hasUserKey = usageRepository.hasUserApiKey()
+                val hasReachedLimit = if (!hasUserKey) {
+                    usageRepository.hasReachedLimit()
+                } else {
+                    false
+                }
+                val currentCount = if (!hasUserKey) {
+                    usageRepository.getCurrentRequestCount()
+                } else {
+                    0
+                }
+                
+                _uiState.update { 
+                    it.copy(
+                        hasReachedRateLimit = hasReachedLimit,
+                        currentRequestCount = currentCount,
+                        hasUserApiKey = hasUserKey
+                    )
+                }
+            } catch (e: Exception) {
+                // If we can't check rate limit, assume it's okay
+                _uiState.update { 
+                    it.copy(
+                        hasReachedRateLimit = false,
+                        currentRequestCount = 0,
+                        hasUserApiKey = false
+                    )
+                }
+            }
+        }
+    }
 
     fun updateTitle(title: String) {
         _uiState.update { it.copy(title = title) }
@@ -179,5 +220,8 @@ data class AddProblemUiState(
     val isGeneratingAi: Boolean = false,
     val isSuccess: Boolean = false,
     val createdProblemId: Long = 0L,
-    val error: String? = null
+    val error: String? = null,
+    val hasReachedRateLimit: Boolean = false,
+    val currentRequestCount: Int = 0,
+    val hasUserApiKey: Boolean = false
 ) 

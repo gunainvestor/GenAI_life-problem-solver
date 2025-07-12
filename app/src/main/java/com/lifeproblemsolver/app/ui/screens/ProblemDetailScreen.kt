@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
 import androidx.compose.ui.res.painterResource
 import com.lifeproblemsolver.app.R
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +34,7 @@ fun ProblemDetailScreen(
     // Handle navigation back when problem is deleted
     LaunchedEffect(uiState.shouldNavigateBack) {
         if (uiState.shouldNavigateBack) {
+            Log.d("ProblemDetailScreen", "Navigating back after delete")
             onNavigateBack()
             viewModel.onNavigateBackHandled()
         }
@@ -44,7 +46,10 @@ fun ProblemDetailScreen(
                 title = { Text("Problem Details") },
                 navigationIcon = {
                     IconButton(
-                        onClick = onNavigateBack
+                        onClick = {
+                            Log.d("ProblemDetailScreen", "Back button pressed")
+                            onNavigateBack()
+                        }
                     ) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
@@ -84,7 +89,10 @@ fun ProblemDetailScreen(
                 ProblemDetailContent(
                     problem = uiState.problem!!,
                     isGeneratingAi = uiState.isGeneratingAi,
-                    onGenerateAiSolution = { viewModel.generateAiSolution() }
+                    onGenerateAiSolution = { viewModel.generateAiSolution() },
+                    hasReachedRateLimit = uiState.hasReachedRateLimit,
+                    currentRequestCount = uiState.currentRequestCount,
+                    hasUserApiKey = uiState.hasUserApiKey
                 )
             }
         }
@@ -95,7 +103,10 @@ fun ProblemDetailScreen(
 private fun ProblemDetailContent(
     problem: com.lifeproblemsolver.app.data.model.Problem,
     isGeneratingAi: Boolean,
-    onGenerateAiSolution: () -> Unit
+    onGenerateAiSolution: () -> Unit,
+    hasReachedRateLimit: Boolean = false,
+    currentRequestCount: Int = 0,
+    hasUserApiKey: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -114,7 +125,10 @@ private fun ProblemDetailContent(
         AiSolutionSection(
             problem = problem,
             isGeneratingAi = isGeneratingAi,
-            onGenerateAiSolution = onGenerateAiSolution
+            onGenerateAiSolution = onGenerateAiSolution,
+            hasReachedRateLimit = hasReachedRateLimit,
+            currentRequestCount = currentRequestCount,
+            hasUserApiKey = hasUserApiKey
         )
     }
 }
@@ -231,7 +245,10 @@ private fun ProblemDetails(problem: com.lifeproblemsolver.app.data.model.Problem
 private fun AiSolutionSection(
     problem: com.lifeproblemsolver.app.data.model.Problem,
     isGeneratingAi: Boolean,
-    onGenerateAiSolution: () -> Unit
+    onGenerateAiSolution: () -> Unit,
+    hasReachedRateLimit: Boolean = false,
+    currentRequestCount: Int = 0,
+    hasUserApiKey: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -259,6 +276,40 @@ private fun AiSolutionSection(
                 )
             }
             
+            // Rate limit alert
+            if (hasReachedRateLimit && !hasUserApiKey) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Column {
+                            Text(
+                                text = "Rate Limit Reached",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "You've used $currentRequestCount/5 free requests. Add your own API key in settings for unlimited usage.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
+            }
+            
             if (problem.aiSolution.isNullOrBlank()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -272,7 +323,7 @@ private fun AiSolutionSection(
                     
                     Button(
                         onClick = onGenerateAiSolution,
-                        enabled = !isGeneratingAi
+                        enabled = !isGeneratingAi && !hasReachedRateLimit
                     ) {
                         if (isGeneratingAi) {
                             CircularProgressIndicator(
@@ -296,7 +347,7 @@ private fun AiSolutionSection(
                 
                 Button(
                     onClick = onGenerateAiSolution,
-                    enabled = !isGeneratingAi,
+                    enabled = !isGeneratingAi && !hasReachedRateLimit,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     if (isGeneratingAi) {

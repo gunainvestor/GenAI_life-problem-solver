@@ -1,5 +1,6 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,7 +36,10 @@ fun ApiKeySettingsScreen(
             TopAppBar(
                 title = { Text("API Key Settings") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        Log.d("ApiKeySettingsScreen", "Back button pressed")
+                        onNavigateBack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }

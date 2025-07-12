@@ -22,6 +22,7 @@ import com.lifeproblemsolver.app.ui.viewmodel.AddProblemUiState
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemViewModel
 import androidx.compose.ui.res.painterResource
 import com.lifeproblemsolver.app.R
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +44,10 @@ fun AddProblemScreen(
             TopAppBar(
                 title = { Text("Add New Problem") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        Log.d("AddProblemScreen", "Back button pressed")
+                        onNavigateBack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -150,10 +154,44 @@ fun AddProblemScreen(
                                 )
                             }
                             
+                            // Rate limit alert
+                            if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.errorContainer
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                        Column {
+                                            Text(
+                                                text = "Rate Limit Reached",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                text = "You've used ${uiState.currentRequestCount}/5 free requests. Add your own API key in settings for unlimited usage.",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onErrorContainer
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            
                             if (uiState.aiSuggestion.isBlank()) {
                                 Button(
                                     onClick = { viewModel.generateAiSolution() },
-                                    enabled = !uiState.isGeneratingAi,
+                                    enabled = !uiState.isGeneratingAi && !uiState.hasReachedRateLimit,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     if (uiState.isGeneratingAi) {
@@ -177,7 +215,7 @@ fun AddProblemScreen(
                                 
                                 Button(
                                     onClick = { viewModel.generateAiSolution() },
-                                    enabled = !uiState.isGeneratingAi,
+                                    enabled = !uiState.isGeneratingAi && !uiState.hasReachedRateLimit,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     if (uiState.isGeneratingAi) {
