@@ -82,17 +82,52 @@ class UsageRepository @Inject constructor(
     }
     
     suspend fun saveUserApiKey(apiKey: String) {
+        saveUserApiKey(apiKey, "API Key")
+    }
+    
+    suspend fun saveUserApiKey(apiKey: String, name: String) {
         val userApiKey = UserApiKey(
+            name = name,
             apiKey = apiKey,
             isActive = true
         )
         
-        // Deactivate other keys
-        userApiKeyDao.deactivateOtherKeys()
-        
-        // Insert new key
+        // Insert new key first to get the ID
         userApiKeyDao.insertApiKey(userApiKey)
-        Log.d(TAG, "User API key saved successfully")
+        
+        // Get the inserted key to get its ID
+        val insertedKey = userApiKeyDao.getAllApiKeys().first().firstOrNull { it.apiKey == apiKey }
+        
+        if (insertedKey != null) {
+            // Deactivate other keys
+            userApiKeyDao.deactivateOtherKeys(insertedKey.id)
+            Log.d(TAG, "User API key saved successfully with name: $name")
+        } else {
+            Log.e(TAG, "Failed to retrieve inserted API key")
+        }
+    }
+    
+    suspend fun getAllApiKeys(): Flow<List<UserApiKey>> {
+        return userApiKeyDao.getAllApiKeys()
+    }
+    
+    suspend fun deleteApiKey(keyId: Long) {
+        userApiKeyDao.deleteApiKey(keyId)
+        Log.d(TAG, "API key with ID $keyId deleted")
+    }
+    
+    suspend fun setActiveApiKey(keyId: Long) {
+        // Deactivate all keys first
+        userApiKeyDao.deactivateOtherKeys(keyId)
+        
+        // Get the key and activate it
+        val keys = userApiKeyDao.getAllApiKeys().first()
+        val keyToActivate = keys.find { it.id == keyId }
+        keyToActivate?.let {
+            val updatedKey = it.copy(isActive = true)
+            userApiKeyDao.updateApiKey(updatedKey)
+            Log.d(TAG, "API key with ID $keyId set as active")
+        }
     }
     
     suspend fun getUserApiKey(): Flow<UserApiKey?> {
@@ -101,13 +136,19 @@ class UsageRepository @Inject constructor(
     
     suspend fun updateLastUsed() {
         val currentTime = LocalDateTime.now()
-        userApiKeyDao.updateLastUsed("default", currentTime)
-        Log.d(TAG, "Updated last used time for user API key")
+        val activeKey = userApiKeyDao.getActiveApiKey().first()
+        activeKey?.let {
+            userApiKeyDao.updateLastUsed(it.id, currentTime)
+            Log.d(TAG, "Updated last used time for user API key")
+        }
     }
     
     suspend fun deleteUserApiKey() {
-        userApiKeyDao.deleteApiKey("default")
-        Log.d(TAG, "User API key deleted")
+        val activeKey = userApiKeyDao.getActiveApiKey().first()
+        activeKey?.let {
+            userApiKeyDao.deleteApiKey(it.id)
+            Log.d(TAG, "Active user API key deleted")
+        }
     }
     
     companion object {

@@ -6,8 +6,9 @@ import java.time.LocalDateTime
 
 @Entity(tableName = "user_api_keys")
 data class UserApiKey(
-    @PrimaryKey
-    val id: String = "default",
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String = "API Key",
     val apiKey: String,
     val isActive: Boolean = true,
     val createdAt: LocalDateTime = LocalDateTime.now(),

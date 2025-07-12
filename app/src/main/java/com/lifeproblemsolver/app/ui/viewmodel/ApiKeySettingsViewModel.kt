@@ -2,6 +2,7 @@ package com.lifeproblemsolver.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lifeproblemsolver.app.data.model.UserApiKey
 import com.lifeproblemsolver.app.data.repository.UsageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ class ApiKeySettingsViewModel @Inject constructor(
     
     init {
         loadApiKeyStatus()
+        loadAllApiKeys()
     }
     
     private fun loadApiKeyStatus() {
@@ -53,20 +55,82 @@ class ApiKeySettingsViewModel @Inject constructor(
         }
     }
     
-    fun saveApiKey(apiKey: String) {
+    private fun loadAllApiKeys() {
+        viewModelScope.launch {
+            try {
+                usageRepository.getAllApiKeys().collect { apiKeys ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            apiKeys = apiKeys,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isLoading = false,
+                        error = "Failed to load API keys: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+    
+    fun saveApiKey(apiKey: String, name: String = "API Key") {
         if (apiKey.isBlank()) return
         
         _uiState.update { it.copy(isLoading = true, error = null) }
         
         viewModelScope.launch {
             try {
-                usageRepository.saveUserApiKey(apiKey)
+                usageRepository.saveUserApiKey(apiKey, name)
                 loadApiKeyStatus()
+                loadAllApiKeys()
             } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
                         isLoading = false,
                         error = "Failed to save API key: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+    
+    fun deleteApiKey(keyId: Long) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        
+        viewModelScope.launch {
+            try {
+                usageRepository.deleteApiKey(keyId)
+                loadApiKeyStatus()
+                loadAllApiKeys()
+            } catch (e: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isLoading = false,
+                        error = "Failed to delete API key: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+    
+    fun setActiveApiKey(keyId: Long) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        
+        viewModelScope.launch {
+            try {
+                usageRepository.setActiveApiKey(keyId)
+                loadApiKeyStatus()
+                loadAllApiKeys()
+            } catch (e: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isLoading = false,
+                        error = "Failed to set active API key: ${e.message}"
                     )
                 }
             }
@@ -80,6 +144,7 @@ class ApiKeySettingsViewModel @Inject constructor(
             try {
                 usageRepository.deleteUserApiKey()
                 loadApiKeyStatus()
+                loadAllApiKeys()
             } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -95,6 +160,7 @@ class ApiKeySettingsViewModel @Inject constructor(
 data class ApiKeySettingsUiState(
     val hasUserApiKey: Boolean = false,
     val remainingRequests: Int = 5,
+    val apiKeys: List<UserApiKey> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 ) 
