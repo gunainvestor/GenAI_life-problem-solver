@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.lifeproblemsolver.app.data.dao.ProblemDao
 import com.lifeproblemsolver.app.data.dao.UsageStatsDao
 import com.lifeproblemsolver.app.data.dao.UserApiKeyDao
+import com.lifeproblemsolver.app.data.dao.WeekendCalendarDao
 import com.lifeproblemsolver.app.data.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -42,6 +43,11 @@ object DatabaseModule {
     @Provides
     fun provideUserApiKeyDao(database: AppDatabase): UserApiKeyDao {
         return database.userApiKeyDao()
+    }
+
+    @Provides
+    fun provideWeekendCalendarDao(database: AppDatabase): WeekendCalendarDao {
+        return database.weekendCalendarDao()
     }
 
     @Provides

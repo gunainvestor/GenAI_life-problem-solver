@@ -19,6 +19,7 @@ import com.lifeproblemsolver.app.ui.screens.CalendarScreen
 import com.lifeproblemsolver.app.ui.screens.MainScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemDetailScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemListScreen
+import com.lifeproblemsolver.app.ui.screens.WeekendCalendarScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,8 @@ fun NavGraph(
                     Log.d("NavGraph", "Navigating to problem detail with ID: $problemId")
                     navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
                 },
-                onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) }
+                onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
+                onNavigateToWeekendCalendar = { navController.navigate(Screen.WeekendCalendar.route) }
             )
         }
         
@@ -75,6 +77,14 @@ fun NavGraph(
         
         composable(Screen.ApiKeySettings.route) {
             ApiKeySettingsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        
+        composable(Screen.WeekendCalendar.route) {
+            WeekendCalendarScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 }

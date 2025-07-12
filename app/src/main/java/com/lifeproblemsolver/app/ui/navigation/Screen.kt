@@ -8,4 +8,5 @@ sealed class Screen(val route: String) {
         fun createRoute(problemId: Long) = "problem_detail/$problemId"
     }
     object ApiKeySettings : Screen("api_key_settings")
+    object WeekendCalendar : Screen("weekend_calendar")
 } 

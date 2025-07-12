@@ -1,12 +1,15 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,6 +22,7 @@ fun MainScreen(
     onNavigateToAddProblem: () -> Unit,
     onProblemDetailNav: (Long) -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToWeekendCalendar: () -> Unit,
     viewModel: ProblemListViewModel = hiltViewModel()
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -52,8 +56,25 @@ fun MainScreen(
                     IconButton(onClick = onNavigateToAddProblem) {
                         Icon(Icons.Default.Add, contentDescription = "Add Problem")
                     }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        onNavigateToWeekendCalendar()
+                                    },
+                                    onTap = {
+                                        onNavigateToSettings()
+                                    }
+                                )
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
                     }
                 }
             )
