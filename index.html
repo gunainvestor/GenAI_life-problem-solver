@@ -12,6 +12,15 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://gunainvestor.github.io/GenAI_life-problem-solver">
     
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -335,7 +344,7 @@
                     <h1 class="hero-title">Your AI-Powered Life Coach</h1>
                     <p class="hero-subtitle">Transform how you solve life's problems with instant, personalized AI solutions. Get clear answers to any challenge in minutes, not hours.</p>
                     <div class="d-flex gap-3 flex-wrap">
-                        <a href="#download" class="btn btn-primary-custom">
+                        <a href="#download" class="btn btn-primary-custom" onclick="trackDownloadClick('hero')">
                             <i class="fas fa-download me-2"></i>Download Free
                         </a>
                         <a href="#features" class="btn btn-outline-light">
@@ -467,7 +476,7 @@
                             <li><i class="fas fa-check"></i> Voice input</li>
                             <li><i class="fas fa-check"></i> Local storage</li>
                         </ul>
-                        <a href="#download" class="btn btn-outline-primary w-100">Get Started Free</a>
+                        <a href="#download" class="btn btn-outline-primary w-100" onclick="trackDownloadClick('pricing_free')">Get Started Free</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
@@ -487,7 +496,7 @@
                             <li><i class="fas fa-check"></i> Priority support</li>
                             <li><i class="fas fa-check"></i> Custom categories</li>
                         </ul>
-                        <a href="#download" class="btn btn-primary-custom w-100">Start Pro Trial</a>
+                        <a href="#download" class="btn btn-primary-custom w-100" onclick="trackDownloadClick('pricing_pro')">Start Pro Trial</a>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
@@ -559,7 +568,7 @@
                     <h2 class="display-4 fw-bold mb-4">Ready to Transform Your Life?</h2>
                     <p class="lead text-muted mb-5">Download Life Problem Solver today and start taking control of your problems with AI-powered intelligence.</p>
                     <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a href="LifeProblemSolver-Tag6.apk" class="btn btn-primary-custom btn-lg" download>
+                        <a href="LifeProblemSolver-Tag6.apk" class="btn btn-primary-custom btn-lg" download onclick="trackDownloadClick('main_download')">
                             <i class="fas fa-download me-2"></i>Download APK
                         </a>
                         <a href="https://github.com/gunainvestor/GenAI_life-problem-solver" class="btn btn-outline-light btn-disabled" target="_blank">
@@ -629,6 +638,47 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Analytics Tracking -->
+    <script>
+        // Track download button clicks
+        function trackDownloadClick(location) {
+            // Google Analytics event tracking
+            gtag('event', 'download_click', {
+                'event_category': 'engagement',
+                'event_label': location,
+                'value': 1
+            });
+            
+            // Also track as a custom event
+            gtag('event', 'apk_download', {
+                'event_category': 'download',
+                'event_label': location,
+                'custom_parameter_1': 'LifeProblemSolver-Tag6.apk'
+            });
+            
+            console.log(`Download clicked from: ${location}`);
+        }
+        
+        // Track page views for different sections
+        function trackSectionView(sectionName) {
+            gtag('event', 'section_view', {
+                'event_category': 'engagement',
+                'event_label': sectionName
+            });
+        }
+        
+        // Track when user reaches download section
+        const downloadSection = document.getElementById('download');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    trackSectionView('download_section');
+                }
+            });
+        });
+        observer.observe(downloadSection);
+    </script>
     
     <!-- Smooth Scrolling -->
     <script>
