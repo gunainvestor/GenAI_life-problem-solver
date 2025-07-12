@@ -30,6 +30,7 @@ fun ProblemDetailScreen(
     viewModel: ProblemDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showRateLimitAlert by remember { mutableStateOf(false) }
     
     // Handle navigation back when problem is deleted
     LaunchedEffect(uiState.shouldNavigateBack) {
@@ -89,13 +90,56 @@ fun ProblemDetailScreen(
                 ProblemDetailContent(
                     problem = uiState.problem!!,
                     isGeneratingAi = uiState.isGeneratingAi,
-                    onGenerateAiSolution = { viewModel.generateAiSolution() },
+                    onGenerateAiSolution = { 
+                        if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
+                            showRateLimitAlert = true
+                        } else {
+                            viewModel.generateAiSolution()
+                        }
+                    },
                     hasReachedRateLimit = uiState.hasReachedRateLimit,
                     currentRequestCount = uiState.currentRequestCount,
                     hasUserApiKey = uiState.hasUserApiKey
                 )
             }
         }
+    }
+    
+    // Rate Limit Alert Dialog
+    if (showRateLimitAlert) {
+        AlertDialog(
+            onDismissRequest = { showRateLimitAlert = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text("Rate Limit Reached")
+            },
+            text = {
+                Text(
+                    "You've used ${uiState.currentRequestCount}/5 free AI requests. " +
+                    "To continue using AI features, please add your own OpenAI API key in the settings."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showRateLimitAlert = false }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showRateLimitAlert = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
