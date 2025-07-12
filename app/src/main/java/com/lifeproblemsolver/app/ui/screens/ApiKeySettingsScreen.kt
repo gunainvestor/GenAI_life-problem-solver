@@ -1,30 +1,35 @@
 package com.lifeproblemsolver.app.ui.screens
 
 import android.util.Log
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Key
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.lifeproblemsolver.app.ui.components.*
+import com.lifeproblemsolver.app.ui.theme.*
 import com.lifeproblemsolver.app.ui.viewmodel.ApiKeySettingsViewModel
 import java.time.format.DateTimeFormatter
 
@@ -36,50 +41,65 @@ fun ApiKeySettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("API Key Settings") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        Log.d("ApiKeySettingsScreen", "Back button pressed")
-                        onNavigateBack()
-                    }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                    )
+                )
             )
-        }
-    ) { paddingValues ->
+    ) {
+        // Premium Top Bar
+        PremiumTopBar(
+            title = "API Key Settings",
+            onBackClick = {
+                Log.d("ApiKeySettingsScreen", "Back button pressed")
+                onNavigateBack()
+            }
+        )
+        
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // Header
             item {
-                Card {
+                PremiumCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = PrimaryGradient
+                ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(Icons.Default.Key, contentDescription = null)
+                            Icon(
+                                Icons.Default.Key,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
                             Text(
                                 text = "OpenAI API Key",
-                                style = MaterialTheme.typography.headlineSmall
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                         
                         Text(
                             text = "Add your own OpenAI API key for unlimited AI requests. " +
                                     "Without a key, you're limited to 5 requests per installation.",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.9f)
                         )
                     }
                 }
@@ -87,245 +107,290 @@ fun ApiKeySettingsScreen(
             
             // Current API Key Status
             item {
-                Card {
+                PremiumCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = if (uiState.hasUserApiKey) SuccessGradient else AccentGradient
+                ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
                             text = "Current Status",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
                         )
                         
                         if (uiState.hasUserApiKey) {
-                            Text(
-                                text = "✅ Using your API key (unlimited requests)",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "Using your API key (unlimited requests)",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                            }
                         } else {
-                            Text(
-                                text = "⚠️ Using predefined key (${uiState.remainingRequests} requests remaining)",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "Using predefined key (${uiState.remainingRequests} requests remaining)",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
             }
             
+            // Add New API Key Section
+            item {
+                PremiumAddApiKeySection(
+                    uiState = uiState,
+                    onAddApiKey = { name, key -> viewModel.saveApiKey(key, name) },
+                    onUpdateName = { /* Not implemented in current ViewModel */ },
+                    onUpdateKey = { /* Not implemented in current ViewModel */ }
+                )
+            }
+            
             // Saved API Keys List
             if (uiState.apiKeys.isNotEmpty()) {
                 item {
-                    Card {
+                    PremiumCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        gradient = SecondaryGradient
+                    ) {
                         Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
                                 text = "Saved API Keys",
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
                             )
                             
                             Text(
                                 text = "Tap on a key to make it active, or use the delete button to remove it.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.8f)
                             )
                         }
                     }
                 }
                 
                 items(uiState.apiKeys) { apiKey ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (apiKey.isActive) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(
-                                        if (apiKey.isActive) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                                        contentDescription = if (apiKey.isActive) "Active" else "Inactive",
-                                        tint = if (apiKey.isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = apiKey.name,
-                                        style = MaterialTheme.typography.titleSmall
-                                    )
-                                }
-                                
-                                Text(
-                                    text = "sk-...${apiKey.apiKey.takeLast(4)}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                
-                                apiKey.lastUsed?.let { lastUsed ->
-                                    Text(
-                                        text = "Last used: ${lastUsed.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                            
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                if (!apiKey.isActive) {
-                                    Button(
-                                        onClick = { viewModel.setActiveApiKey(apiKey.id) },
-                                        modifier = Modifier.height(36.dp)
-                                    ) {
-                                        Text("Activate")
-                                    }
-                                }
-                                
-                                IconButton(
-                                    onClick = { viewModel.deleteApiKey(apiKey.id) },
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    PremiumApiKeyCard(
+                        apiKey = apiKey,
+                        onActivate = { viewModel.setActiveApiKey(apiKey.id) },
+                        onDelete = { viewModel.deleteApiKey(apiKey.id) }
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PremiumAddApiKeySection(
+    uiState: com.lifeproblemsolver.app.ui.viewmodel.ApiKeySettingsUiState,
+    onAddApiKey: (String, String) -> Unit,
+    onUpdateName: (String) -> Unit,
+    onUpdateKey: (String) -> Unit
+) {
+    var showPassword by remember { mutableStateOf(true) }
+    var apiKeyName by remember { mutableStateOf("") }
+    var apiKey by remember { mutableStateOf("") }
+    
+    PremiumCard(
+        modifier = Modifier.fillMaxWidth(),
+        gradient = AccentGradient
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Add New API Key",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold
+            )
             
-            // Add New API Key
-            item {
-                Card {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = "Add New API Key",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        
-                        var apiKey by remember { mutableStateOf("") }
-                        var keyName by remember { mutableStateOf("") }
-                        var showPassword by remember { mutableStateOf(false) }
-                        
-                        OutlinedTextField(
-                            value = keyName,
-                            onValueChange = { keyName = it },
-                            label = { Text("Key Name (optional)") },
-                            placeholder = { Text("e.g., Work Key, Personal Key") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        OutlinedTextField(
-                            value = apiKey,
-                            onValueChange = { apiKey = it },
-                            label = { Text("OpenAI API Key") },
-                            placeholder = { Text("sk-...") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                            trailingIcon = {
-                                IconButton(onClick = { showPassword = !showPassword }) {
-                                    Icon(
-                                        if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                        contentDescription = if (showPassword) "Hide" else "Show"
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        Button(
-                            onClick = {
-                                if (apiKey.isNotBlank()) {
-                                    viewModel.saveApiKey(apiKey, keyName.ifBlank { "API Key" })
-                                    apiKey = ""
-                                    keyName = ""
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = apiKey.isNotBlank() && !uiState.isLoading
-                        ) {
-                            if (uiState.isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text("Save API Key")
-                            }
-                        }
-                    }
-                }
-            }
+            PremiumTextFieldWithVoice(
+                value = apiKeyName,
+                onValueChange = { apiKeyName = it },
+                label = "Key Name",
+                placeholder = "e.g., Work Account, Personal",
+                leadingIcon = Icons.Default.Label
+            )
             
-            // Instructions
-            item {
-                Card {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "How to get an API key",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        
-                        Text(
-                            text = "1. Go to https://platform.openai.com/api-keys\n" +
-                                    "2. Sign in or create an account\n" +
-                                    "3. Click 'Create new secret key'\n" +
-                                    "4. Copy the key and paste it above\n" +
-                                    "5. Your key starts with 'sk-'",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-            }
+            PremiumTextField(
+                value = apiKey,
+                onValueChange = { apiKey = it },
+                label = "API Key",
+                placeholder = "sk-...",
+                leadingIcon = Icons.Default.Key,
+                trailingIcon = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff
+            )
             
-            // Error message
-            uiState.error?.let { error ->
-                item {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        )
+            PremiumButton(
+                onClick = { onAddApiKey(apiKeyName, apiKey) },
+                text = "Add API Key",
+                icon = Icons.Default.Add,
+                enabled = apiKeyName.isNotBlank() && apiKey.isNotBlank(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            if (uiState.error != null) {
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp)
+                        )
                         Text(
-                            text = error,
-                            modifier = Modifier.padding(16.dp),
+                            text = uiState.error!!,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PremiumApiKeyCard(
+    apiKey: com.lifeproblemsolver.app.data.model.UserApiKey,
+    onActivate: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val animatedElevation by animateFloatAsState(
+        targetValue = if (apiKey.isActive) 8f else 4f,
+        animationSpec = tween(200),
+        label = "api_key_elevation"
+    )
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = animatedElevation.dp,
+                shape = RoundedCornerShape(16.dp),
+                spotColor = if (apiKey.isActive) PrimaryBlue.copy(alpha = 0.3f) else Color.Transparent
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (apiKey.isActive) 
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f)
+            else 
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            if (apiKey.isActive) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                            contentDescription = if (apiKey.isActive) "Active" else "Inactive",
+                            tint = if (apiKey.isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = apiKey.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                    Text(
+                        text = "sk-...${apiKey.apiKey.takeLast(4)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    apiKey.lastUsed?.let { lastUsed ->
+                        Text(
+                            text = "Last used: ${lastUsed.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (!apiKey.isActive) {
+                        PremiumButton(
+                            onClick = onActivate,
+                            text = "Activate",
+                            icon = Icons.Default.Check,
+                            modifier = Modifier.height(36.dp)
+                        )
+                    }
+                    
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .shadow(
+                                elevation = 2.dp,
+                                shape = RoundedCornerShape(8.dp),
+                                spotColor = ErrorRed.copy(alpha = 0.3f)
+                            )
+                            .background(
+                                Brush.linearGradient(listOf(ErrorRed, ErrorRedLight)),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clip(RoundedCornerShape(8.dp))
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }

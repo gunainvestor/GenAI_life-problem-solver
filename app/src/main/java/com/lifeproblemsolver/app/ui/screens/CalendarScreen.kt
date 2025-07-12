@@ -1,12 +1,17 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,204 +21,272 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lifeproblemsolver.app.data.model.Problem
+import com.lifeproblemsolver.app.data.model.Priority
+import com.lifeproblemsolver.app.ui.components.*
+import com.lifeproblemsolver.app.ui.theme.*
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 
 @Composable
 fun CalendarScreen(
     problems: List<Problem>,
-    onNavigateToProblem: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateToProblem: (Long) -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    
+    // Group problems by date
+    val groupedProblems = problems.groupBy { it.createdAt.toLocalDate() }
+    
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                    )
+                )
+            )
+            .padding(16.dp)
     ) {
         // Month navigation header
-        MonthHeader(
+        MonthNavigationHeader(
             currentMonth = currentMonth,
             onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
             onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
         )
-
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
         // Calendar grid
         CalendarGrid(
             currentMonth = currentMonth,
             selectedDate = selectedDate,
-            problems = problems,
-            onDateSelected = { selectedDate = it },
+            groupedProblems = groupedProblems,
+            onDateSelected = { selectedDate = it }
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Problems for selected date
+        SelectedDateProblems(
+            selectedDate = selectedDate,
+            problems = groupedProblems[selectedDate] ?: emptyList(),
             onNavigateToProblem = onNavigateToProblem
         )
-
-        // Selected date problems
-        if (problems.any { it.createdAt.toLocalDate() == selectedDate }) {
-            SelectedDateProblems(
-                date = selectedDate,
-                problems = problems.filter { it.createdAt.toLocalDate() == selectedDate },
-                onNavigateToProblem = onNavigateToProblem
-            )
-        }
     }
 }
 
 @Composable
-private fun MonthHeader(
+fun MonthNavigationHeader(
     currentMonth: YearMonth,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onPreviousMonth) {
-            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
+            Icon(
+                imageVector = Icons.Default.ChevronLeft,
+                contentDescription = "Previous Month",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
-
+        
         Text(
-            text = "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
+            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
-
+        
         IconButton(onClick = onNextMonth) {
-            Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Next Month",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
 
 @Composable
-private fun CalendarGrid(
+fun CalendarGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
-    problems: List<Problem>,
-    onDateSelected: (LocalDate) -> Unit,
-    onNavigateToProblem: (Long) -> Unit
+    groupedProblems: Map<LocalDate, List<Problem>>,
+    onDateSelected: (LocalDate) -> Unit
 ) {
+    val daysInMonth = currentMonth.lengthOfMonth()
     val firstDayOfMonth = currentMonth.atDay(1)
-    val lastDayOfMonth = currentMonth.atEndOfMonth()
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value
-    val daysInMonth = lastDayOfMonth.dayOfMonth
-
-    // Calculate the first day to display (including previous month's days)
-    val firstDisplayDay = firstDayOfMonth.minusDays((firstDayOfWeek - 1).toLong())
-    val totalDaysToDisplay = 42 // 6 weeks * 7 days
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    ) {
-        // Day of week headers
+    
+    // Calculate the number of days from previous month to show
+    val daysFromPreviousMonth = if (firstDayOfWeek == 1) 0 else firstDayOfWeek - 1
+    
+    Column {
+        // Day headers
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { day ->
+            listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { dayName ->
                 Text(
-                    text = day,
+                    text = dayName,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    textAlign = TextAlign.Center
                 )
             }
         }
-
+        
         Spacer(modifier = Modifier.height(8.dp))
-
-        // Calendar days grid
+        
+        // Calendar grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.height(280.dp)
         ) {
-            items(totalDaysToDisplay) { index ->
-                val date = firstDisplayDay.plusDays(index.toLong())
-                val isCurrentMonth = date.month == currentMonth.month
+            // Previous month days
+            items(daysFromPreviousMonth) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                }
+            }
+            
+            // Current month days
+            items(daysInMonth) { day ->
+                val date = currentMonth.atDay(day + 1)
                 val isSelected = date == selectedDate
-                val hasProblems = problems.any { it.createdAt.toLocalDate() == date }
-                val dayProblems = problems.filter { it.createdAt.toLocalDate() == date }
-
-                CalendarDay(
-                    date = date,
-                    isCurrentMonth = isCurrentMonth,
+                val isToday = date == LocalDate.now()
+                val hasProblems = groupedProblems.containsKey(date)
+                val problemsForDay = groupedProblems[date] ?: emptyList()
+                
+                DayCell(
+                    day = day + 1,
                     isSelected = isSelected,
+                    isToday = isToday,
                     hasProblems = hasProblems,
-                    problemCount = dayProblems.size,
+                    problemCount = problemsForDay.size,
                     onClick = { onDateSelected(date) }
                 )
+            }
+            
+            // Next month days to fill the grid
+            val totalCells = 42 // 6 rows * 7 columns
+            val remainingCells = totalCells - daysFromPreviousMonth - daysInMonth
+            items(remainingCells) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CalendarDay(
-    date: LocalDate,
-    isCurrentMonth: Boolean,
+fun DayCell(
+    day: Int,
     isSelected: Boolean,
+    isToday: Boolean,
     hasProblems: Boolean,
     problemCount: Int,
     onClick: () -> Unit
 ) {
-    val backgroundColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        else -> Color.Transparent
-    }
-
-    val textColor = when {
-        isSelected -> MaterialTheme.colorScheme.onPrimary
-        !isCurrentMonth -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-        else -> MaterialTheme.colorScheme.onSurface
-    }
-
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .aspectRatio(1f)
             .clip(CircleShape)
-            .background(backgroundColor)
+            .background(
+                when {
+                    isSelected -> MaterialTheme.colorScheme.primary
+                    isToday -> MaterialTheme.colorScheme.primaryContainer
+                    else -> Color.Transparent
+                }
+            )
+            .border(
+                width = if (isToday && !isSelected) 2.dp else 0.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = date.dayOfMonth.toString(),
+                text = day.toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = textColor,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+                color = when {
+                    isSelected -> MaterialTheme.colorScheme.onPrimary
+                    isToday -> MaterialTheme.colorScheme.onPrimaryContainer
+                    else -> MaterialTheme.colorScheme.onSurface
+                }
             )
-
+            
             if (hasProblems) {
                 Box(
                     modifier = Modifier
                         .size(6.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary),
+                        .background(
+                            when {
+                                isSelected -> MaterialTheme.colorScheme.onPrimary
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     if (problemCount > 1) {
                         Text(
                             text = if (problemCount > 9) "9+" else problemCount.toString(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondary,
-                            fontSize = 8.sp
+                            color = when {
+                                isSelected -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onPrimary
+                            }
                         )
                     }
                 }
@@ -223,37 +296,50 @@ private fun CalendarDay(
 }
 
 @Composable
-private fun SelectedDateProblems(
-    date: LocalDate,
+fun SelectedDateProblems(
+    selectedDate: LocalDate,
     problems: List<Problem>,
     onNavigateToProblem: (Long) -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(12.dp)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Problems on ${date.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
+                text = "Problems for ${selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"))}",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(problems) { problem ->
-                    ProblemCard(
-                        problem = problem,
-                        onClick = { onNavigateToProblem(problem.id) },
-                        showActions = false
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            if (problems.isEmpty()) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "No problems for this date",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(problems) { problem ->
+                        ProblemCard(
+                            problem = problem,
+                            onClick = { onNavigateToProblem(problem.id) }
+                        )
+                    }
                 }
             }
         }
@@ -261,77 +347,68 @@ private fun SelectedDateProblems(
 }
 
 @Composable
-private fun ProblemCard(
+fun ProblemCard(
     problem: Problem,
-    onClick: () -> Unit,
-    showActions: Boolean
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
+            Text(
+                text = problem.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = problem.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = problem.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.weight(1f)
+                    text = problem.category,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Category icon
-                    Icon(
-                        imageVector = when (problem.category.lowercase(Locale.getDefault())) {
-                            "work" -> Icons.Default.Work
-                            "health" -> Icons.Default.Favorite
-                            "relationship" -> Icons.Default.People
-                            "finance" -> Icons.Default.AttachMoney
-                            "education" -> Icons.Default.School
-                            else -> Icons.Default.Category
-                        },
-                        contentDescription = problem.category,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-
-                    // Priority indicator
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(
-                                when (problem.priority) {
-                                    com.lifeproblemsolver.app.data.model.Priority.URGENT -> Color.Red
-                                    com.lifeproblemsolver.app.data.model.Priority.HIGH -> Color(0xFFFF6B35)
-                                    com.lifeproblemsolver.app.data.model.Priority.MEDIUM -> Color(0xFFFFD93D)
-                                    com.lifeproblemsolver.app.data.model.Priority.LOW -> Color(0xFF6BCF7F)
-                                }
-                            )
-                    )
-                }
-            }
-
-            if (problem.description.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = problem.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2
-                )
+                PriorityChip(priority = problem.priority)
             }
         }
+    }
+}
+
+@Composable
+fun PriorityChip(priority: Priority) {
+    val (backgroundColor, textColor) = when (priority) {
+        Priority.HIGH -> MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.onError
+        Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary to MaterialTheme.colorScheme.onTertiary
+        Priority.LOW -> MaterialTheme.colorScheme.secondary to MaterialTheme.colorScheme.onSecondary
+        Priority.URGENT -> MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.onError
+    }
+    
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = backgroundColor,
+        modifier = Modifier.padding(horizontal = 4.dp)
+    ) {
+        Text(
+            text = priority.name,
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+        )
     }
 } 

@@ -128,7 +128,7 @@ class OpenAiService(private val apiKey: String) : AiService {
             val openAiRequest = OpenAiRequest(
                 model = "gpt-3.5-turbo",
                 messages = listOf(
-                    OpenAiMessage(role = "system", content = "You are a helpful assistant that gives structured, actionable solutions to life problems, referencing well-known frameworks where possible."),
+                    OpenAiMessage(role = "system", content = "You are a helpful life coach expertise in Productivity, time management, deligation, focus, discipline  that gives structured, actionable solutions to life problems, referencing well-known frameworks where possible.You can mention wel known book reference from where have you picked the recommendation with Book name , authoir name and chapter of the book"),
                     OpenAiMessage(role = "user", content = prompt)
                 ),
                 max_tokens = 512,

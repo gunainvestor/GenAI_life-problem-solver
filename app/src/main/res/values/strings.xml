@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Life Problem Solver</string>
+    <string name="app_name">LifeFix</string>
     
     <!-- Navigation -->
     <string name="nav_problems">Problems</string>
     <string name="nav_add_problem">Add Problem</string>
     
     <!-- Problem List -->
-    <string name="problem_list_title">Life Problem Solver</string>
+    <string name="problem_list_title">LifeFix</string>
     <string name="add_problem">Add Problem</string>
     <string name="filter_problems">Filter Problems</string>
     <string name="no_problems_yet">No problems yet</string>

@@ -141,6 +141,13 @@ class ProblemListViewModel @Inject constructor(
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
+
+    fun createSampleProblems() {
+        viewModelScope.launch {
+            repository.createSampleProblems()
+            loadProblems()
+        }
+    }
 }
 
 data class ProblemListUiState(

@@ -47,7 +47,7 @@ fun NavGraph(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onProblemDetailNav = { problemId -> 
+                onNavigateToProblem = { problemId -> 
                     Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
                     navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
                 }
