@@ -96,4 +96,46 @@ class ProblemRepository @Inject constructor(
         )
         updateProblem(updatedProblem)
     }
+    
+    suspend fun createSampleProblems() {
+        val sampleProblems = listOf(
+            Problem(
+                title = "Work Schedule Conflict",
+                description = "Need to balance multiple project deadlines this week",
+                category = "Professional",
+                priority = Priority.HIGH,
+                createdAt = LocalDateTime.now().minusDays(2),
+                updatedAt = LocalDateTime.now().minusDays(2)
+            ),
+            Problem(
+                title = "Health Checkup",
+                description = "Annual physical examination due this month",
+                category = "Health",
+                priority = Priority.MEDIUM,
+                createdAt = LocalDateTime.now().minusDays(1),
+                updatedAt = LocalDateTime.now().minusDays(1)
+            ),
+            Problem(
+                title = "Budget Planning",
+                description = "Need to create a monthly budget and stick to it",
+                category = "Financial",
+                priority = Priority.MEDIUM,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now()
+            ),
+            Problem(
+                title = "Relationship Communication",
+                description = "Improve communication with partner about future plans",
+                category = "Relationships",
+                priority = Priority.LOW,
+                createdAt = LocalDateTime.now().minusDays(3),
+                updatedAt = LocalDateTime.now().minusDays(3)
+            )
+        )
+        
+        sampleProblems.forEach { problem ->
+            insertProblem(problem)
+        }
+        Log.d(TAG, "Created ${sampleProblems.size} sample problems")
+    }
 } 

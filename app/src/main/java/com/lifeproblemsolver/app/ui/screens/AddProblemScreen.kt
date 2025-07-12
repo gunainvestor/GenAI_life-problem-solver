@@ -1,56 +1,74 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lifeproblemsolver.app.data.model.Priority
-import com.lifeproblemsolver.app.ui.components.VoiceToTextComponent
-import com.lifeproblemsolver.app.ui.viewmodel.AddProblemUiState
+import com.lifeproblemsolver.app.ui.components.*
+import com.lifeproblemsolver.app.ui.theme.*
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemViewModel
-import androidx.compose.ui.res.painterResource
-import com.lifeproblemsolver.app.R
-import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProblemScreen(
     onNavigateBack: () -> Unit,
-    onProblemDetailNav: (Long) -> Unit,
+    onNavigateToProblem: (Long) -> Unit,
     viewModel: AddProblemViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
     var showRateLimitAlert by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess && uiState.createdProblemId > 0) {
-            Log.d("AddProblemScreen", "Navigating to problem detail with ID: ${uiState.createdProblemId}")
-            onProblemDetailNav(uiState.createdProblemId)
+            onNavigateToProblem(uiState.createdProblemId)
+        }
+    }
+
+    LaunchedEffect(uiState.error) {
+        if (uiState.error != null) {
+            // Show error snackbar or handle error
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Add New Problem") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        Log.d("AddProblemScreen", "Back button pressed")
-                        onNavigateBack()
-                    }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            PremiumTopBar(
+                title = "Add Problem",
+                onBackClick = onNavigateBack,
+                actions = {
+                    VoiceToTextComponent(
+                        onTextReceived = { spokenText ->
+                            // Add the spoken text to the description field
+                            viewModel.updateDescription(uiState.description + (if (uiState.description.isNotBlank()) " " else "") + spokenText)
+                        },
+                        modifier = Modifier.size(48.dp)
+                    )
+                    IconButton(onClick = { /* Share or other action */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share"
+                        )
                     }
                 }
             )
@@ -61,288 +79,221 @@ fun AddProblemScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            // Problem Title
+            PremiumTextFieldWithVoice(
+                value = uiState.title,
+                onValueChange = { viewModel.updateTitle(it) },
+                label = "Problem Title",
+                placeholder = "Enter a clear, concise title for your problem",
+                leadingIcon = Icons.Default.Title,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Problem Description
+            PremiumTextFieldWithVoice(
+                value = uiState.description,
+                onValueChange = { viewModel.updateDescription(it) },
+                label = "Problem Description",
+                placeholder = "Describe your problem in detail...",
+                leadingIcon = Icons.Default.Description,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Category Selection
+            PremiumCard(
+                modifier = Modifier.fillMaxWidth(),
+                gradient = SecondaryGradient
             ) {
-                // Title field
-                OutlinedTextField(
-                    value = uiState.title,
-                    onValueChange = { viewModel.updateTitle(it) },
-                    label = { Text("Problem Title *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    isError = uiState.error?.contains("Title") == true
-                )
-                
-                // Description field with voice input
-                OutlinedTextField(
-                    value = uiState.description,
-                    onValueChange = { viewModel.updateDescription(it) },
-                    label = { Text("Description *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
-                    maxLines = 5,
-                    isError = uiState.error?.contains("Description") == true,
-                    trailingIcon = {
-                        VoiceToTextComponent(
-                            onTextReceived = { spokenText ->
-                                viewModel.appendToDescription(spokenText)
-                            }
-                        )
-                    }
-                )
-                
-                // Notes field
-                OutlinedTextField(
-                    value = uiState.notes,
-                    onValueChange = { viewModel.updateNotes(it) },
-                    label = { Text("Additional Notes") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 2,
-                    maxLines = 4
-                )
-                
-                // Category selection
-                Text(
-                    text = "Category",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                
-                CategorySelector(
-                    selectedCategory = uiState.category,
-                    onCategorySelected = { viewModel.updateCategory(it) }
-                )
-                
-                // Priority selection
-                Text(
-                    text = "Priority",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                
-                PrioritySelector(
-                    selectedPriority = uiState.priority,
-                    onPrioritySelected = { viewModel.updatePriority(it) }
-                )
-                
-                // AI Solution Generation
-                if (uiState.title.isNotBlank() || uiState.description.isNotBlank()) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Psychology,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "AI Solution",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                            
-                            // Rate limit alert
-                            if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
-                                Card(
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.errorContainer
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Warning,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                        Column {
-                                            Text(
-                                                text = "Rate Limit Reached",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = "You've used ${uiState.currentRequestCount}/5 free requests. Add your own API key in settings for unlimited usage.",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onErrorContainer
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if (uiState.aiSuggestion.isBlank()) {
-                                Button(
-                                    onClick = { 
-                                        if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
-                                            showRateLimitAlert = true
-                                        } else {
-                                            viewModel.generateAiSolution()
-                                        }
-                                    },
-                                    enabled = !uiState.isGeneratingAi,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    if (uiState.isGeneratingAi) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            strokeWidth = 2.dp
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Generating...")
-                                    } else {
-                                        Icon(Icons.Default.AutoAwesome, contentDescription = null)
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Generate AI Solution")
-                                    }
-                                }
-                            } else {
-                                Text(
-                                    text = uiState.aiSuggestion,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                
-                                Button(
-                                    onClick = { 
-                                        if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
-                                            showRateLimitAlert = true
-                                        } else {
-                                            viewModel.generateAiSolution()
-                                        }
-                                    },
-                                    enabled = !uiState.isGeneratingAi,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    if (uiState.isGeneratingAi) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            strokeWidth = 2.dp
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Regenerating...")
-                                    } else {
-                                        Icon(Icons.Default.Refresh, contentDescription = null)
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Regenerate Solution")
-                                    }
-                                }
-                            }
-                        }
-                    }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Category",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                    PremiumCategorySelector(
+                        selectedCategory = uiState.category,
+                        onCategorySelected = { viewModel.updateCategory(it) }
+                    )
                 }
-                
-                // Error message
-                if (uiState.error != null) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        )
+            }
+
+            // Priority Selection
+            PremiumCard(
+                modifier = Modifier.fillMaxWidth(),
+                gradient = AccentGradient
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Priority Level",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                    PremiumPrioritySelector(
+                        selectedPriority = uiState.priority,
+                        onPrioritySelected = { viewModel.updatePriority(it) }
+                    )
+                }
+            }
+
+            // AI Solution Generation
+            if (uiState.title.isNotBlank() || uiState.description.isNotBlank()) {
+                PremiumCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = PremiumGradient
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Error,
+                                imageVector = Icons.Default.Psychology,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
                             )
                             Text(
-                                text = uiState.error!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onErrorContainer
+                                text = "AI Solution",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
                             )
+                        }
+
+                        if (uiState.aiSuggestion.isBlank()) {
+                            PremiumButton(
+                                onClick = { 
+                                    if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
+                                        showRateLimitAlert = true
+                                    } else {
+                                        viewModel.generateAiSolution()
+                                    }
+                                },
+                                text = "Generate AI Solution",
+                                icon = Icons.Default.AutoAwesome,
+                                enabled = !uiState.isGeneratingAi
+                            )
+                        } else {
+                            GlassCard(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text(
+                                        text = "AI Suggestion",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = uiState.aiSuggestion,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        if (uiState.isGeneratingAi) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "Generating AI solution...",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
-                
-                // Save button
-                Button(
-                    onClick = { viewModel.saveProblem() },
-                    enabled = !uiState.isLoading && uiState.title.isNotBlank() && uiState.description.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth()
+            }
+
+            // Submit Button
+            PremiumButton(
+                text = "Submit Problem",
+                onClick = { viewModel.saveProblem() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading && uiState.title.isNotBlank() && uiState.description.isNotBlank()
+            )
+            
+            if (uiState.isLoading) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (uiState.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Saving...")
-                    } else {
-                        Icon(Icons.Default.Save, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Save Problem")
-                    }
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Saving problem...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
     }
-    
-    // Rate Limit Alert Dialog
+
+    // Rate limit alert dialog
     if (showRateLimitAlert) {
         AlertDialog(
             onDismissRequest = { showRateLimitAlert = false },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
-                )
-            },
             title = {
-                Text("Rate Limit Reached")
+                Text(
+                    text = "Rate Limit Reached",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
             },
             text = {
                 Text(
-                    "You've used ${uiState.currentRequestCount}/5 free AI requests. " +
-                    "To continue using AI features, please add your own OpenAI API key in the settings."
+                    text = "You've reached the free tier limit. Add your own API key in settings for unlimited AI solutions.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             },
             confirmButton = {
-                TextButton(
-                    onClick = { showRateLimitAlert = false }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showRateLimitAlert = false }
-                ) {
-                    Text("Cancel")
-                }
+                PremiumButton(
+                    onClick = { showRateLimitAlert = false },
+                    text = "OK"
+                )
             }
         )
     }
 }
 
 @Composable
-private fun CategorySelector(
+private fun PremiumCategorySelector(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
 ) {
-    val categories = listOf("Work", "Health", "Relationship", "Finance", "Education", "Other")
+    val categories = listOf(
+        "Personal", "Professional", "Health", "Financial", 
+        "Relationships", "Education", "Technology", "Other"
+    )
     
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -351,68 +302,106 @@ private fun CategorySelector(
         modifier = Modifier.height(120.dp)
     ) {
         items(categories) { category ->
-            FilterChip(
-                onClick = { onCategorySelected(category) },
-                label = { Text(category) },
-                selected = selectedCategory == category,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = getCategoryIconRes(category)),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+            val isSelected = selectedCategory == category
+            val animatedElevation by animateFloatAsState(
+                targetValue = if (isSelected) 6f else 2f,
+                animationSpec = tween(200),
+                label = "category_elevation"
+            )
+            
+            Card(
+                modifier = Modifier
+                    .shadow(
+                        elevation = animatedElevation.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        spotColor = if (isSelected) PrimaryBlue.copy(alpha = 0.3f) else Color.Transparent
+                    )
+                    .background(
+                        brush = if (isSelected) PrimaryGradient else Brush.linearGradient(listOf(Color.Transparent, Color.Transparent)),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onCategorySelected(category) },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = category,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                     )
                 }
-            )
+            }
         }
     }
 }
 
 @Composable
-private fun PrioritySelector(
+private fun PremiumPrioritySelector(
     selectedPriority: Priority,
     onPrioritySelected: (Priority) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Priority.values().forEach { priority ->
-            FilterChip(
-                onClick = { onPrioritySelected(priority) },
-                label = { Text(priority.name.lowercase().capitalize()) },
-                selected = selectedPriority == priority,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = getPriorityIconRes(priority)),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+            val isSelected = selectedPriority == priority
+            val animatedElevation by animateFloatAsState(
+                targetValue = if (isSelected) 6f else 2f,
+                animationSpec = tween(200),
+                label = "priority_elevation"
+            )
+            
+            val priorityGradient = when (priority) {
+                Priority.HIGH -> Brush.linearGradient(listOf(ErrorRed, ErrorRedLight))
+                Priority.MEDIUM -> Brush.linearGradient(listOf(AccentGold, AccentGoldLight))
+                Priority.LOW -> Brush.linearGradient(listOf(SuccessGreen, SuccessGreenLight))
+                Priority.URGENT -> Brush.linearGradient(listOf(ErrorRed, ErrorRedLight))
+            }
+            
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .shadow(
+                        elevation = animatedElevation.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        spotColor = if (isSelected) ErrorRed.copy(alpha = 0.3f) else Color.Transparent
+                    )
+                    .background(
+                        brush = if (isSelected) priorityGradient else Brush.linearGradient(listOf(Color.Transparent, Color.Transparent)),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onPrioritySelected(priority) },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = priority.name,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                     )
                 }
-            )
+            }
         }
-    }
-}
-
-private fun getCategoryIconRes(category: String): Int = when (category.trim().lowercase()) {
-    "work" -> R.drawable.ic_category_work
-    "health" -> R.drawable.ic_category_health
-    "relationship" -> R.drawable.ic_category_relationship
-    "finance" -> R.drawable.ic_category_finance
-    "education" -> R.drawable.ic_category_education
-    else -> R.drawable.ic_category_other
-}
-
-private fun getPriorityIconRes(priority: Priority): Int = when (priority) {
-    Priority.LOW -> R.drawable.ic_priority_low
-    Priority.MEDIUM -> R.drawable.ic_priority_medium
-    Priority.HIGH -> R.drawable.ic_priority_high
-    Priority.URGENT -> R.drawable.ic_priority_urgent
-}
-
-private fun String.capitalize(): String {
-    return if (isNotEmpty()) {
-        this[0].uppercase() + substring(1)
-    } else {
-        this
     }
 } 

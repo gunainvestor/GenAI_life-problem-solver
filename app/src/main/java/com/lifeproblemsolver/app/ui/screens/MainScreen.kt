@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lifeproblemsolver.app.ui.components.VoiceToTextComponent
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +41,14 @@ fun MainScreen(
             TopAppBar(
                 title = { Text("Life Problem Solver") },
                 actions = {
+                    VoiceToTextComponent(
+                        onTextReceived = { spokenText ->
+                            // For now, just navigate to add problem
+                            // In the future, this could pre-fill the form
+                            onNavigateToAddProblem()
+                        },
+                        modifier = Modifier.size(48.dp)
+                    )
                     IconButton(onClick = onNavigateToAddProblem) {
                         Icon(Icons.Default.Add, contentDescription = "Add Problem")
                     }

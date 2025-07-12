@@ -16,29 +16,72 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PrimaryBlueLight,
+    onPrimary = Neutral50,
+    primaryContainer = PrimaryBlue,
+    onPrimaryContainer = Neutral100,
+    secondary = SecondaryTealLight,
+    onSecondary = Neutral50,
+    secondaryContainer = SecondaryTeal,
+    onSecondaryContainer = Neutral100,
+    tertiary = AccentGoldLight,
+    onTertiary = Neutral50,
+    tertiaryContainer = AccentGold,
+    onTertiaryContainer = Neutral100,
+    background = BackgroundDark,
+    onBackground = Neutral100,
+    surface = BackgroundDarkSecondary,
+    onSurface = Neutral100,
+    surfaceVariant = Neutral800,
+    onSurfaceVariant = Neutral300,
+    outline = Neutral600,
+    outlineVariant = Neutral700,
+    error = ErrorRedLight,
+    onError = Neutral50,
+    errorContainer = ErrorRed,
+    onErrorContainer = Neutral100,
+    inverseSurface = Neutral100,
+    inverseOnSurface = Neutral900,
+    inversePrimary = PrimaryBlueLight
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = PrimaryBlue,
+    onPrimary = Neutral50,
+    primaryContainer = PrimaryBlueLight,
+    onPrimaryContainer = Neutral900,
+    secondary = SecondaryTeal,
+    onSecondary = Neutral50,
+    secondaryContainer = SecondaryTealLight,
+    onSecondaryContainer = Neutral900,
+    tertiary = AccentGold,
+    onTertiary = Neutral50,
+    tertiaryContainer = AccentGoldLight,
+    onTertiaryContainer = Neutral900,
+    background = BackgroundPrimary,
+    onBackground = Neutral900,
+    surface = Neutral50,
+    onSurface = Neutral900,
+    surfaceVariant = Neutral100,
+    onSurfaceVariant = Neutral700,
+    outline = Neutral300,
+    outlineVariant = Neutral200,
+    error = ErrorRed,
+    onError = Neutral50,
+    errorContainer = ErrorRedLight,
+    onErrorContainer = Neutral900,
+    inverseSurface = Neutral900,
+    inverseOnSurface = Neutral100,
+    inversePrimary = PrimaryBlue
 )
 
 @Composable
 fun LifeProblemSolverTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disabled for consistent premium branding
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -46,8 +89,9 @@ fun LifeProblemSolverTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            // Set status bar to match the app's premium theme
+            window.statusBarColor = if (darkTheme) BackgroundDark.toArgb() else BackgroundPrimary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

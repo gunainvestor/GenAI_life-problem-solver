@@ -1,4 +1,4 @@
-# Life Problem Solver Android App
+# LifeFix Android App
 
 An AI-powered Android application built with modern Android development practices to help users solve life problems using OpenAI's GPT model.
 
