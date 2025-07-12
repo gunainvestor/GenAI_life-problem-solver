@@ -299,19 +299,19 @@ private fun SortedProblemCard(
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Get priority-based uniform background color
-    val backgroundColor = when (problem.priority) {
-        Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
-        Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.06f)
-        Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.06f)
-        Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.06f)
+    // Get priority color for indicators only
+    val priorityColor = when (problem.priority) {
+        Priority.URGENT -> MaterialTheme.colorScheme.error
+        Priority.HIGH -> MaterialTheme.colorScheme.error
+        Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
+        Priority.LOW -> MaterialTheme.colorScheme.secondary
     }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -372,20 +372,10 @@ private fun SortedProblemCard(
                     // Priority chip with matching color
                     Surface(
                         shape = MaterialTheme.shapes.small,
-                        color = when (problem.priority) {
-                            Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                            Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
-                            Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
-                            Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
-                        },
+                        color = priorityColor.copy(alpha = 0.2f),
                         border = BorderStroke(
                             width = 1.dp,
-                            color = when (problem.priority) {
-                                Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
-                                Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.25f)
-                                Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.25f)
-                                Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
-                            }
+                            color = priorityColor.copy(alpha = 0.3f)
                         )
                     ) {
                         Row(
@@ -402,22 +392,12 @@ private fun SortedProblemCard(
                                 },
                                 contentDescription = null,
                                 modifier = Modifier.size(12.dp),
-                                tint = when (problem.priority) {
-                                    Priority.URGENT -> MaterialTheme.colorScheme.error
-                                    Priority.HIGH -> MaterialTheme.colorScheme.error
-                                    Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
-                                    Priority.LOW -> MaterialTheme.colorScheme.secondary
-                                }
+                                tint = priorityColor
                             )
                             Text(
                                 text = problem.priority.name,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = when (problem.priority) {
-                                    Priority.URGENT -> MaterialTheme.colorScheme.error
-                                    Priority.HIGH -> MaterialTheme.colorScheme.error
-                                    Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
-                                    Priority.LOW -> MaterialTheme.colorScheme.secondary
-                                }
+                                color = priorityColor
                             )
                         }
                     }

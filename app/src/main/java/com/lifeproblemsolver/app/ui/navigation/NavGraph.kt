@@ -49,7 +49,10 @@ fun NavGraph(
                 },
                 onNavigateToProblem = { problemId -> 
                     Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
-                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
+                    // Navigate to problem detail and clear the add problem screen from stack
+                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) {
+                        popUpTo(Screen.AddProblem.route) { inclusive = true }
+                    }
                 }
             )
         }
