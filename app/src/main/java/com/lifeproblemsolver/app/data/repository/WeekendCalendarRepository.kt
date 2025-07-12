@@ -38,6 +38,10 @@ class WeekendCalendarRepository @Inject constructor(
         weekendCalendarDao.updateWeekendSelection(date, isSelected)
     }
     
+    suspend fun updateWeekendNote(date: LocalDate, note: String) {
+        weekendCalendarDao.updateWeekendNote(date, note)
+    }
+    
     suspend fun deleteWeekend(weekend: WeekendCalendar) {
         weekendCalendarDao.deleteWeekend(weekend)
     }

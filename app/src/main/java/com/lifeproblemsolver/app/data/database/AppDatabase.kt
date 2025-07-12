@@ -24,7 +24,7 @@ import com.lifeproblemsolver.app.data.model.AppTypeConverters
         UserApiKey::class,
         WeekendCalendar::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(AppTypeConverters::class)
@@ -82,6 +82,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add note column to weekend_calendar table
+                database.execSQL(
+                    "ALTER TABLE weekend_calendar ADD COLUMN note TEXT NOT NULL DEFAULT ''"
+                )
+            }
+        }
+        
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -89,7 +98,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "life_problem_solver_database"
                 )
-                .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 INSTANCE = instance
                 instance

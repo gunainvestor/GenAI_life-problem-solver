@@ -82,6 +82,30 @@ class WeekendCalendarViewModel @Inject constructor(
         }
     }
     
+    fun updateWeekendNote(date: LocalDate, note: String) {
+        viewModelScope.launch {
+            try {
+                weekendCalendarRepository.updateWeekendNote(date, note)
+                
+                // Update local state immediately for better UX
+                _uiState.update { currentState ->
+                    val updatedWeekends = currentState.weekends.map { weekend ->
+                        if (weekend.date == date) {
+                            weekend.copy(note = note)
+                        } else {
+                            weekend
+                        }
+                    }
+                    currentState.copy(weekends = updatedWeekends)
+                }
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(error = e.message ?: "Failed to update note")
+                }
+            }
+        }
+    }
+    
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

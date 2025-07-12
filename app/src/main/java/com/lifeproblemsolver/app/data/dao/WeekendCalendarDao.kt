@@ -32,6 +32,9 @@ interface WeekendCalendarDao {
     @Query("UPDATE weekend_calendar SET isSelected = :isSelected WHERE date = :date")
     suspend fun updateWeekendSelection(date: LocalDate, isSelected: Boolean)
     
+    @Query("UPDATE weekend_calendar SET note = :note WHERE date = :date")
+    suspend fun updateWeekendNote(date: LocalDate, note: String)
+    
     @Delete
     suspend fun deleteWeekend(weekend: WeekendCalendar)
     

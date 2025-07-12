@@ -10,5 +10,6 @@ data class WeekendCalendar(
     val id: Long = 0,
     val date: LocalDate,
     val isSelected: Boolean = false,
+    val note: String = "",
     val createdAt: Long = System.currentTimeMillis()
 ) 
