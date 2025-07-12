@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lifeproblemsolver.app.data.model.Priority
+import com.lifeproblemsolver.app.ui.components.VoiceToTextComponent
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemUiState
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemViewModel
 
@@ -21,14 +22,14 @@ import com.lifeproblemsolver.app.ui.viewmodel.AddProblemViewModel
 @Composable
 fun AddProblemScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToProblemDetail: (Long) -> Unit,
+    onProblemDetailNav: (Long) -> Unit,
     viewModel: AddProblemViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess && uiState.createdProblemId > 0) {
-            onNavigateToProblemDetail(uiState.createdProblemId)
+            onProblemDetailNav(uiState.createdProblemId)
         }
     }
 
@@ -64,7 +65,7 @@ fun AddProblemScreen(
                     isError = uiState.error?.contains("Title") == true
                 )
                 
-                // Description field
+                // Description field with voice input
                 OutlinedTextField(
                     value = uiState.description,
                     onValueChange = { viewModel.updateDescription(it) },
@@ -72,7 +73,14 @@ fun AddProblemScreen(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     maxLines = 5,
-                    isError = uiState.error?.contains("Description") == true
+                    isError = uiState.error?.contains("Description") == true,
+                    trailingIcon = {
+                        VoiceToTextComponent(
+                            onTextReceived = { spokenText ->
+                                viewModel.appendToDescription(spokenText)
+                            }
+                        )
+                    }
                 )
                 
                 // Notes field

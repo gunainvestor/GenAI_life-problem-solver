@@ -20,15 +20,14 @@ import com.lifeproblemsolver.app.ui.components.ProblemCard
 import com.lifeproblemsolver.app.ui.viewmodel.FilterType
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemListUiState
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemListViewModel
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProblemListScreen(
-    onNavigateToAddProblem: () -> Unit,
-    onNavigateToProblemDetail: (Long) -> Unit,
+    onNavigateToAddProblem: () -> Unit = {},
+    onProblemDetailNav: (Long) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     viewModel: ProblemListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -40,6 +39,9 @@ fun ProblemListScreen(
             TopAppBar(
                 title = { Text("Life Problem Solver") },
                 actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                     IconButton(onClick = { showFilterDialog = true }) {
                         Icon(Icons.Default.FilterList, contentDescription = "Filter")
                     }
@@ -86,7 +88,7 @@ fun ProblemListScreen(
                 else -> {
                     ProblemList(
                         problems = uiState.problems,
-                        onProblemClick = onNavigateToProblemDetail,
+                        onProblemClick = onProblemDetailNav,
                         onDeleteProblem = { viewModel.deleteProblem(it) }
                     )
                 }

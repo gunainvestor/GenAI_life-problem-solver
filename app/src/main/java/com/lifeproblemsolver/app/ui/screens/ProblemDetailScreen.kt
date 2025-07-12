@@ -16,21 +16,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemDetailUiState
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemDetailViewModel
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProblemDetailScreen(
+    problemId: Long,
     onNavigateBack: () -> Unit,
     viewModel: ProblemDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
-    LaunchedEffect(uiState.isDeleted) {
-        if (uiState.isDeleted) {
+    // Handle navigation back when problem is deleted
+    LaunchedEffect(uiState.shouldNavigateBack) {
+        if (uiState.shouldNavigateBack) {
             onNavigateBack()
+            viewModel.onNavigateBackHandled()
         }
     }
 
@@ -187,14 +189,14 @@ private fun ProblemDetails(problem: com.lifeproblemsolver.app.data.model.Problem
                 content = problem.description
             )
             
-            // Notes
-            if (problem.notes.isNotBlank()) {
-                DetailSection(
-                    title = "Notes",
-                    icon = Icons.Default.Note,
-                    content = problem.notes
-                )
-            }
+            // Notes section removed - notes field not in current Problem model
+            // if (problem.notes.isNotBlank()) {
+            //     DetailSection(
+            //         title = "Notes",
+            //         icon = Icons.Default.Note,
+            //         content = problem.notes
+            //     )
+            // }
             
             // Dates
             Row(
@@ -253,7 +255,7 @@ private fun AiSolutionSection(
                 )
             }
             
-            if (problem.aiSuggestion.isBlank()) {
+            if (problem.aiSolution.isNullOrBlank()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -284,7 +286,7 @@ private fun AiSolutionSection(
                 }
             } else {
                 Text(
-                    text = problem.aiSuggestion,
+                    text = problem.aiSolution ?: "",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
@@ -428,7 +430,7 @@ private fun ErrorContent(
     }
 }
 
-private fun formatDate(instant: Instant): String {
-    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${localDateTime.monthNumber}/${localDateTime.dayOfMonth}/${localDateTime.year}"
+private fun formatDate(localDateTime: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    return localDateTime.format(formatter)
 } 

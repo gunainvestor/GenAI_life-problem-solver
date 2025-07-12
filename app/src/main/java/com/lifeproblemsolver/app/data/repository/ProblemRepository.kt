@@ -7,7 +7,7 @@ import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.data.remote.AiService
 import com.lifeproblemsolver.app.data.remote.SolutionRequest
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,27 +65,25 @@ class ProblemRepository @Inject constructor(
     suspend fun createProblem(
         title: String,
         description: String,
-        notes: String = "",
         category: String = "General",
         priority: Priority = Priority.MEDIUM
     ): Long {
         val problem = Problem(
             title = title,
             description = description,
-            notes = notes,
             category = category,
             priority = priority,
-            createdAt = Instant.fromEpochMilliseconds(System.currentTimeMillis()),
-            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
         )
         return insertProblem(problem)
     }
     
-    suspend fun updateProblemWithAiSolution(problemId: Long, aiSuggestion: String) {
+    suspend fun updateProblemWithAiSolution(problemId: Long, aiSolution: String) {
         val problem = getProblemById(problemId) ?: return
         val updatedProblem = problem.copy(
-            aiSuggestion = aiSuggestion,
-            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            aiSolution = aiSolution,
+            updatedAt = LocalDateTime.now()
         )
         updateProblem(updatedProblem)
     }
@@ -94,7 +92,7 @@ class ProblemRepository @Inject constructor(
         val problem = getProblemById(problemId) ?: return
         val updatedProblem = problem.copy(
             isResolved = true,
-            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+            updatedAt = LocalDateTime.now()
         )
         updateProblem(updatedProblem)
     }

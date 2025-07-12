@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -99,8 +100,8 @@ dependencies {
     ksp("androidx.room:room-compiler:2.5.2")
     
     // Hilt Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.47")
-    ksp("com.google.dagger:hilt-android-compiler:2.47")
+    implementation("com.google.dagger:hilt-android:2.48")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     
     // Coroutines
@@ -117,6 +118,10 @@ dependencies {
     
     // Date/Time
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    
+    // Firebase Analytics
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
@@ -135,4 +140,34 @@ dependencies {
 
 ksp {
     arg("dagger.hilt.disableModulesHaveInstallInCheck", "true")
+}
+
+// Task to generate SHA fingerprints
+tasks.register("generateFingerprints") {
+    group = "verification"
+    description = "Generate SHA-1 and SHA-256 fingerprints for Firebase"
+    
+    doLast {
+        println("=== SHA Certificate Fingerprints ===")
+        println("Debug keystore fingerprints:")
+        
+        // Debug keystore
+        val debugKeystore = file("${System.getProperty("user.home")}/.android/debug.keystore")
+        if (debugKeystore.exists()) {
+            exec {
+                commandLine("keytool", "-list", "-v", "-keystore", debugKeystore.absolutePath, 
+                           "-alias", "androiddebugkey", "-storepass", "android", "-keypass", "android")
+            }
+        } else {
+            println("Debug keystore not found at: ${debugKeystore.absolutePath}")
+        }
+        
+        println("\n=== Instructions ===")
+        println("1. Copy the SHA-1 and SHA-256 fingerprints above")
+        println("2. Go to Firebase Console: https://console.firebase.google.com/")
+        println("3. Select your project > Project Settings > Your apps")
+        println("4. Add your Android app with package: com.lifeproblemsolver.app")
+        println("5. Add the SHA fingerprints to your Firebase project")
+        println("6. Download google-services.json and place it in the app/ directory")
+    }
 } 
