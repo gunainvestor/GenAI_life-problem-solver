@@ -3,6 +3,9 @@ package com.lifeproblemsolver.app.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,6 +20,8 @@ import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.ui.components.VoiceToTextComponent
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemUiState
 import com.lifeproblemsolver.app.ui.viewmodel.AddProblemViewModel
+import androidx.compose.ui.res.painterResource
+import com.lifeproblemsolver.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,16 +98,16 @@ fun AddProblemScreen(
                     maxLines = 4
                 )
                 
-                // Category field
-                OutlinedTextField(
-                    value = uiState.category,
-                    onValueChange = { viewModel.updateCategory(it) },
-                    label = { Text("Category") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    leadingIcon = {
-                        Icon(Icons.Default.Category, contentDescription = null)
-                    }
+                // Category selection
+                Text(
+                    text = "Category",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                
+                CategorySelector(
+                    selectedCategory = uiState.category,
+                    onCategorySelected = { viewModel.updateCategory(it) }
                 )
                 
                 // Priority selection
@@ -244,6 +249,36 @@ fun AddProblemScreen(
 }
 
 @Composable
+private fun CategorySelector(
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
+    val categories = listOf("Work", "Health", "Relationship", "Finance", "Education", "Other")
+    
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.height(120.dp)
+    ) {
+        items(categories) { category ->
+            FilterChip(
+                onClick = { onCategorySelected(category) },
+                label = { Text(category) },
+                selected = selectedCategory == category,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = getCategoryIconRes(category)),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
 private fun PrioritySelector(
     selectedPriority: Priority,
     onPrioritySelected: (Priority) -> Unit
@@ -259,12 +294,7 @@ private fun PrioritySelector(
                 selected = selectedPriority == priority,
                 leadingIcon = {
                     Icon(
-                        imageVector = when (priority) {
-                            Priority.LOW -> Icons.Default.LowPriority
-                            Priority.MEDIUM -> Icons.Default.PriorityHigh
-                            Priority.HIGH -> Icons.Default.PriorityHigh
-                            Priority.URGENT -> Icons.Default.Warning
-                        },
+                        painter = painterResource(id = getPriorityIconRes(priority)),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -272,6 +302,22 @@ private fun PrioritySelector(
             )
         }
     }
+}
+
+private fun getCategoryIconRes(category: String): Int = when (category.trim().lowercase()) {
+    "work" -> R.drawable.ic_category_work
+    "health" -> R.drawable.ic_category_health
+    "relationship" -> R.drawable.ic_category_relationship
+    "finance" -> R.drawable.ic_category_finance
+    "education" -> R.drawable.ic_category_education
+    else -> R.drawable.ic_category_other
+}
+
+private fun getPriorityIconRes(priority: Priority): Int = when (priority) {
+    Priority.LOW -> R.drawable.ic_priority_low
+    Priority.MEDIUM -> R.drawable.ic_priority_medium
+    Priority.HIGH -> R.drawable.ic_priority_high
+    Priority.URGENT -> R.drawable.ic_priority_urgent
 }
 
 private fun String.capitalize(): String {

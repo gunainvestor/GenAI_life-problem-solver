@@ -20,6 +20,6 @@ interface UsageStatsDao {
     @Query("UPDATE usage_stats SET requestCount = requestCount + 1, lastRequestTime = :currentTime WHERE installationId = :installationId")
     suspend fun incrementRequestCount(installationId: String, currentTime: LocalDateTime)
     
-    @Query("SELECT COUNT(*) FROM usage_stats WHERE installationId = :installationId")
+    @Query("SELECT COALESCE(requestCount, 0) FROM usage_stats WHERE installationId = :installationId")
     suspend fun getRequestCount(installationId: String): Int
 } 
