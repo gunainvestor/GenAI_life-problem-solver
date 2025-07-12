@@ -1,0 +1,17 @@
+# Gradle properties template
+# Copy this file to gradle.properties and add your API keys
+
+# OpenAI API Key - Replace with your actual API key
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Android SDK path (will be auto-generated)
+# sdk.dir=/path/to/android/sdk
+
+# Gradle settings
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+org.gradle.parallel=true
+org.gradle.caching=true
+org.gradle.configuration-cache=false
+
+# Kotlin settings
+kotlin.code.style=official 

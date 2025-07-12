@@ -1,0 +1,101 @@
+package com.lifeproblemsolver.app.data.repository
+
+import android.util.Log
+import com.lifeproblemsolver.app.data.dao.ProblemDao
+import com.lifeproblemsolver.app.data.model.Problem
+import com.lifeproblemsolver.app.data.model.Priority
+import com.lifeproblemsolver.app.data.remote.AiService
+import com.lifeproblemsolver.app.data.remote.SolutionRequest
+import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class ProblemRepository @Inject constructor(
+    private val problemDao: ProblemDao,
+    private val aiService: AiService
+) {
+    private val TAG = "ProblemRepository"
+    fun getAllProblems(): Flow<List<Problem>> = problemDao.getAllProblems()
+    
+    fun getProblemsByCategory(category: String): Flow<List<Problem>> = 
+        problemDao.getProblemsByCategory(category)
+    
+    fun getProblemsByPriority(priority: String): Flow<List<Problem>> = 
+        problemDao.getProblemsByPriority(priority)
+    
+    fun getProblemsByStatus(isResolved: Boolean): Flow<List<Problem>> = 
+        problemDao.getProblemsByStatus(isResolved)
+    
+    fun getAllCategories(): Flow<List<String>> = problemDao.getAllCategories()
+    
+    suspend fun getProblemById(id: Long): Problem? = problemDao.getProblemById(id)
+    
+    suspend fun insertProblem(problem: Problem): Long = problemDao.insertProblem(problem)
+    
+    suspend fun updateProblem(problem: Problem) = problemDao.updateProblem(problem)
+    
+    suspend fun deleteProblem(problem: Problem) = problemDao.deleteProblem(problem)
+    
+    suspend fun generateAiSolution(problem: Problem): String {
+        Log.d(TAG, "generateAiSolution called for problem: ${problem.title}")
+        
+        val request = SolutionRequest(
+            problem = problem.title,
+            context = problem.description,
+            category = problem.category
+        )
+        Log.d(TAG, "Created SolutionRequest: problem='${request.problem}', category='${request.category}'")
+        
+        return try {
+            Log.d(TAG, "Calling aiService.generateSolution...")
+            val response = aiService.generateSolution(request)
+            Log.d(TAG, "Received AI response, solution length: ${response.solution.length}")
+            Log.d(TAG, "Solution preview: ${response.solution.take(100)}...")
+            response.solution
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in generateAiSolution", e)
+            Log.e(TAG, "Error message: ${e.message}")
+            Log.e(TAG, "Error type: ${e.javaClass.simpleName}")
+            "Unable to generate AI solution at this time. Please try again later."
+        }
+    }
+    
+    suspend fun createProblem(
+        title: String,
+        description: String,
+        notes: String = "",
+        category: String = "General",
+        priority: Priority = Priority.MEDIUM
+    ): Long {
+        val problem = Problem(
+            title = title,
+            description = description,
+            notes = notes,
+            category = category,
+            priority = priority,
+            createdAt = Instant.fromEpochMilliseconds(System.currentTimeMillis()),
+            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        )
+        return insertProblem(problem)
+    }
+    
+    suspend fun updateProblemWithAiSolution(problemId: Long, aiSuggestion: String) {
+        val problem = getProblemById(problemId) ?: return
+        val updatedProblem = problem.copy(
+            aiSuggestion = aiSuggestion,
+            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        )
+        updateProblem(updatedProblem)
+    }
+    
+    suspend fun markProblemAsResolved(problemId: Long) {
+        val problem = getProblemById(problemId) ?: return
+        val updatedProblem = problem.copy(
+            isResolved = true,
+            updatedAt = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+        )
+        updateProblem(updatedProblem)
+    }
+} 
