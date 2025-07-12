@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Problem Solver - Your AI-Powered Life Coach</title>
+    <meta name="description" content="Transform how you solve life's problems with AI-powered intelligence and personal organization. Get instant, personalized solutions for any challenge.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Life Problem Solver - Your AI-Powered Life Coach">
+    <meta property="og:description" content="Get instant, personalized solutions for any life problem with our AI-powered app.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gunainvestor.github.io/GenAI_life-problem-solver">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+        
+        .section {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .section-alt {
+            background: var(--light-color);
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid var(--primary-color);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+        
+        .price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+        
+        .price .period {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li i {
+            color: var(--success-color);
+            margin-right: 10px;
+        }
+        
+        .stats-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 60px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .testimonial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .app-screenshot {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+                margin: 20px 0;
+            }
+            
+            .pricing-card.featured:hover {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(31, 41, 55, 0.9); backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-brain me-2"></i>Life Problem Solver
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pricing">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">Testimonials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary-custom ms-2" href="#download">Download</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="hero-title">Your AI-Powered Life Coach</h1>
+                    <p class="hero-subtitle">Transform how you solve life's problems with instant, personalized AI solutions. Get clear answers to any challenge in minutes, not hours.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="#download" class="btn btn-primary-custom">
+                            <i class="fas fa-download me-2"></i>Download Free
+                        </a>
+                        <a href="#features" class="btn btn-outline-light">
+                            <i class="fas fa-play me-2"></i>Watch Demo
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://via.placeholder.com/400x600/6366f1/ffffff?text=App+Screenshot" alt="Life Problem Solver App" class="app-screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 stat-item">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Reduced Stress</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-label">Feel More Organized</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-number">78%</div>
+                    <div class="stat-label">Better Decisions</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-number">3-5min</div>
+                    <div class="stat-label">Average Solution Time</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-4 fw-bold mb-4">Why Choose Life Problem Solver?</h2>
+                    <p class="lead text-muted">The first AI-powered problem management app that truly understands your unique situation</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">AI-Powered Intelligence</h4>
+                        <p class="text-muted">Our advanced AI analyzes your specific situation and provides personalized, actionable solutions instead of generic advice.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Voice Input</h4>
+                        <p class="text-muted">Describe your problems naturally using voice input. No more typing - just speak and get instant solutions.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Priority Intelligence</h4>
+                        <p class="text-muted">Our smart system helps you focus on what's truly urgent versus what can wait, reducing overwhelm.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Calendar Integration</h4>
+                        <p class="text-muted">Visual timeline of your problems with calendar view. Track when problems were created and resolved.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Privacy-First</h4>
+                        <p class="text-muted">Everything stays on your device. Your personal problems remain private and secure with local storage.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Always Available</h4>
+                        <p class="text-muted">Your personal AI coach is always in your pocket. Get solutions anytime, anywhere, instantly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section section-alt">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-4 fw-bold mb-4">Choose Your Plan</h2>
+                    <p class="lead text-muted">Start free and upgrade as you need more AI-powered solutions</p>
+                </div>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="pricing-card">
+                        <h4 class="fw-bold mb-3">Free</h4>
+                        <div class="price">
+                            <span class="currency">$</span>0
+                            <span class="period">/month</span>
+                        </div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 5 AI solutions per month</li>
+                            <li><i class="fas fa-check"></i> Basic problem organization</li>
+                            <li><i class="fas fa-check"></i> Priority sorting</li>
+                            <li><i class="fas fa-check"></i> Calendar view</li>
+                            <li><i class="fas fa-check"></i> Voice input</li>
+                            <li><i class="fas fa-check"></i> Local storage</li>
+                        </ul>
+                        <a href="#download" class="btn btn-outline-primary w-100">Get Started Free</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="pricing-card featured">
+                        <div class="badge bg-primary position-absolute top-0 start-50 translate-middle-x mt-3">Most Popular</div>
+                        <h4 class="fw-bold mb-3">Pro</h4>
+                        <div class="price">
+                            <span class="currency">$</span>9.99
+                            <span class="period">/month</span>
+                        </div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Unlimited AI solutions</li>
+                            <li><i class="fas fa-check"></i> Advanced problem analytics</li>
+                            <li><i class="fas fa-check"></i> Priority intelligence</li>
+                            <li><i class="fas fa-check"></i> Progress tracking</li>
+                            <li><i class="fas fa-check"></i> Export/Import data</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Custom categories</li>
+                        </ul>
+                        <a href="#download" class="btn btn-primary-custom w-100">Start Pro Trial</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="pricing-card">
+                        <h4 class="fw-bold mb-3">Enterprise</h4>
+                        <div class="price">
+                            <span class="currency">$</span>29.99
+                            <span class="period">/month</span>
+                        </div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Everything in Pro</li>
+                            <li><i class="fas fa-check"></i> Team collaboration</li>
+                            <li><i class="fas fa-check"></i> Advanced analytics</li>
+                            <li><i class="fas fa-check"></i> API access</li>
+                            <li><i class="fas fa-check"></i> Custom integrations</li>
+                            <li><i class="fas fa-check"></i> Dedicated support</li>
+                            <li><i class="fas fa-check"></i> White-label options</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-outline-primary w-100">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-4 fw-bold mb-4">What Our Users Say</h2>
+                    <p class="lead text-muted">Join thousands of users who have transformed their problem-solving approach</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">
+                            "I used to spend hours overthinking problems. Now I get clear solutions in minutes and can move forward with confidence."
+                        </div>
+                        <div class="testimonial-author">- Sarah Johnson, Marketing Director</div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">
+                            "The priority system helps me focus on what really matters instead of getting overwhelmed by everything."
+                        </div>
+                        <div class="testimonial-author">- Michael Chen, Software Engineer</div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">
+                            "Having an AI coach in my pocket has completely changed how I approach challenges in my daily life."
+                        </div>
+                        <div class="testimonial-author">- Emily Rodriguez, Student</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="section section-alt">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-4 fw-bold mb-4">Ready to Transform Your Life?</h2>
+                    <p class="lead text-muted mb-5">Download Life Problem Solver today and start taking control of your problems with AI-powered intelligence.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="LifeProblemSolver-Tag6.apk" class="btn btn-primary-custom btn-lg" download>
+                            <i class="fas fa-download me-2"></i>Download APK
+                        </a>
+                        <a href="https://github.com/gunainvestor/GenAI_life-problem-solver" class="btn btn-outline-primary btn-lg" target="_blank">
+                            <i class="fab fa-github me-2"></i>View Source
+                        </a>
+                    </div>
+                    <p class="text-muted mt-3">
+                        <small>Compatible with Android 7.0+ • Free to download • No registration required</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-brain me-2"></i>Life Problem Solver
+                    </h5>
+                    <p class="text-muted">Your AI-powered life coach that helps you solve any problem instantly with personalized, intelligent solutions.</p>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="fw-bold mb-3">Product</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#features" class="text-muted text-decoration-none">Features</a></li>
+                        <li><a href="#pricing" class="text-muted text-decoration-none">Pricing</a></li>
+                        <li><a href="#download" class="text-muted text-decoration-none">Download</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="https://github.com/gunainvestor/GenAI_life-problem-solver/issues" class="text-muted text-decoration-none" target="_blank">Issues</a></li>
+                        <li><a href="https://github.com/gunainvestor/GenAI_life-problem-solver" class="text-muted text-decoration-none" target="_blank">Documentation</a></li>
+                        <li><a href="#contact" class="text-muted text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="fw-bold mb-3">Connect</h6>
+                    <div class="d-flex gap-3">
+                        <a href="https://github.com/gunainvestor/GenAI_life-problem-solver" class="text-muted" target="_blank">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-muted">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-muted">
+                            <i class="fab fa-linkedin fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; 2024 Life Problem Solver. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">Built with ❤️ using AI and modern technology</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Smooth Scrolling -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(31, 41, 55, 0.95)';
+            } else {
+                navbar.style.background = 'rgba(31, 41, 55, 0.9)';
+            }
+        });
+    </script>
+</body>
+</html> 
