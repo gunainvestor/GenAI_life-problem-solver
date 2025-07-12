@@ -244,22 +244,22 @@
         
         .footer {
             background: var(--dark-color);
-            color: white;
+            color: #b0b3b8;
             padding: 40px 0;
             text-align: center;
         }
         
         .footer a {
-            color: #e5e7eb !important;
+            color: #b0b3b8 !important;
             text-decoration: none;
         }
         
         .footer a:hover {
-            color: white !important;
+            color: #fff !important;
         }
         
         .footer .text-muted {
-            color: #d1d5db !important;
+            color: #b0b3b8 !important;
         }
         
         .app-screenshot {
@@ -274,6 +274,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        .btn-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         @media (max-width: 768px) {
@@ -555,6 +561,9 @@
                     <div class="d-flex gap-3 justify-content-center flex-wrap">
                         <a href="LifeProblemSolver-Tag6.apk" class="btn btn-primary-custom btn-lg" download>
                             <i class="fas fa-download me-2"></i>Download APK
+                        </a>
+                        <a href="https://github.com/gunainvestor/GenAI_life-problem-solver" class="btn btn-outline-light btn-disabled" target="_blank">
+                            <i class="fas fa-code me-2"></i>View Source
                         </a>
                     </div>
                     <p class="text-muted mt-3">
