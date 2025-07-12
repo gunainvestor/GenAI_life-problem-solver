@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.repository.ProblemRepository
+import com.lifeproblemsolver.app.data.repository.UsageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProblemDetailViewModel @Inject constructor(
     private val problemRepository: ProblemRepository,
+    private val usageRepository: UsageRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
@@ -27,6 +29,42 @@ class ProblemDetailViewModel @Inject constructor(
     
     init {
         loadProblem()
+        checkRateLimit()
+    }
+
+    private fun checkRateLimit() {
+        viewModelScope.launch {
+            try {
+                val hasUserKey = usageRepository.hasUserApiKey()
+                val hasReachedLimit = if (!hasUserKey) {
+                    usageRepository.hasReachedLimit()
+                } else {
+                    false
+                }
+                val currentCount = if (!hasUserKey) {
+                    usageRepository.getCurrentRequestCount()
+                } else {
+                    0
+                }
+                
+                _uiState.update { 
+                    it.copy(
+                        hasReachedRateLimit = hasReachedLimit,
+                        currentRequestCount = currentCount,
+                        hasUserApiKey = hasUserKey
+                    )
+                }
+            } catch (e: Exception) {
+                // If we can't check rate limit, assume it's okay
+                _uiState.update { 
+                    it.copy(
+                        hasReachedRateLimit = false,
+                        currentRequestCount = 0,
+                        hasUserApiKey = false
+                    )
+                }
+            }
+        }
     }
     
     private fun loadProblem() {
@@ -138,5 +176,8 @@ data class ProblemDetailUiState(
     val isLoading: Boolean = false,
     val isGeneratingAi: Boolean = false,
     val error: String? = null,
-    val shouldNavigateBack: Boolean = false
+    val shouldNavigateBack: Boolean = false,
+    val hasReachedRateLimit: Boolean = false,
+    val currentRequestCount: Int = 0,
+    val hasUserApiKey: Boolean = false
 ) 
