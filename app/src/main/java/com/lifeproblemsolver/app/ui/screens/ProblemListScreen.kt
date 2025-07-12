@@ -1,5 +1,8 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lifeproblemsolver.app.data.model.Problem
@@ -20,6 +25,10 @@ import com.lifeproblemsolver.app.ui.components.ProblemCard
 import com.lifeproblemsolver.app.ui.viewmodel.FilterType
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemListUiState
 import com.lifeproblemsolver.app.ui.viewmodel.ProblemListViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,13 +154,23 @@ private fun ProblemList(
     onProblemClick: (Long) -> Unit,
     onDeleteProblem: (Problem) -> Unit
 ) {
+    // Sort problems by priority: URGENT -> HIGH -> MEDIUM -> LOW
+    val sortedProblems = problems.sortedBy { problem ->
+        when (problem.priority) {
+            Priority.URGENT -> 0
+            Priority.HIGH -> 1
+            Priority.MEDIUM -> 2
+            Priority.LOW -> 3
+        }
+    }
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(problems) { problem ->
-            ProblemCard(
+        items(sortedProblems) { problem ->
+            SortedProblemCard(
                 problem = problem,
                 onClick = { onProblemClick(problem.id) },
                 onDelete = { onDeleteProblem(problem) }
@@ -270,6 +289,229 @@ private fun FilterDialog(
             }
         }
     )
+}
+
+@Composable
+private fun SortedProblemCard(
+    problem: Problem,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Get priority-based uniform background color
+    val backgroundColor = when (problem.priority) {
+        Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
+        Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.06f)
+        Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.06f)
+        Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.06f)
+    }
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = problem.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    Text(
+                        text = problem.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Priority chip with matching color
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = when (problem.priority) {
+                            Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                            Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                            Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
+                            Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
+                        },
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = when (problem.priority) {
+                                Priority.URGENT -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+                                Priority.HIGH -> MaterialTheme.colorScheme.error.copy(alpha = 0.25f)
+                                Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.25f)
+                                Priority.LOW -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)
+                            }
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = when (problem.priority) {
+                                    Priority.URGENT -> Icons.Default.Warning
+                                    Priority.HIGH -> Icons.Default.PriorityHigh
+                                    Priority.MEDIUM -> Icons.Default.Info
+                                    Priority.LOW -> Icons.Default.LowPriority
+                                },
+                                contentDescription = null,
+                                modifier = Modifier.size(12.dp),
+                                tint = when (problem.priority) {
+                                    Priority.URGENT -> MaterialTheme.colorScheme.error
+                                    Priority.HIGH -> MaterialTheme.colorScheme.error
+                                    Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
+                                    Priority.LOW -> MaterialTheme.colorScheme.secondary
+                                }
+                            )
+                            Text(
+                                text = problem.priority.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = when (problem.priority) {
+                                    Priority.URGENT -> MaterialTheme.colorScheme.error
+                                    Priority.HIGH -> MaterialTheme.colorScheme.error
+                                    Priority.MEDIUM -> MaterialTheme.colorScheme.tertiary
+                                    Priority.LOW -> MaterialTheme.colorScheme.secondary
+                                }
+                            )
+                        }
+                    }
+                    
+                    // Category chip
+                    if (problem.category.isNotBlank()) {
+                        AssistChip(
+                            onClick = { },
+                            label = { Text(problem.category) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Category,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        )
+                    }
+                    
+                    // Resolved status
+                    if (problem.isResolved) {
+                        AssistChip(
+                            onClick = { },
+                            label = { Text("Resolved") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        )
+                    }
+                }
+                
+                // Date
+                Text(
+                    text = formatDate(problem.createdAt),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            // AI solution preview
+            if (problem.aiSolution?.isNotBlank() == true) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Psychology,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "AI Solution Available",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+    
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Problem") },
+            text = { Text("Are you sure you want to delete this problem? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+private fun formatDate(localDateTime: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    return localDateTime.format(formatter)
 }
 
 // Extension properties for FilterType
