@@ -76,10 +76,10 @@
 - **Average time to solution**: 3-5 minutes vs. hours of research
 
 ### **Sample Testimonials:**
-- *"I used to spend hours overthinking problems. Now I get clear solutions in minutes and can move forward with confidence."*
-- *"The priority system helps me focus on what really matters instead of getting overwhelmed by everything."*
-- *"Having an AI coach in my pocket has completely changed how I approach challenges."*
-- *"The voice input makes it so easy to describe my problems naturally."*
+- *"I used to spend hours overthinking problems. Now I get clear solutions in minutes and can move forward with confidence."* - Priya Sharma, Marketing Director
+- *"The priority system helps me focus on what really matters instead of getting overwhelmed by everything."* - Rajesh Kumar, Software Engineer
+- *"Having an AI coach in my pocket has completely changed how I approach challenges in my daily life."* - Anjali Patel, Student
+- *"The voice input makes it so easy to describe my problems naturally."* - Amit Singh, Business Owner
 
 ---
 
