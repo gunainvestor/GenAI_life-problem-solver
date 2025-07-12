@@ -13,6 +13,8 @@ import com.lifeproblemsolver.app.data.model.Problem
 import com.lifeproblemsolver.app.data.model.Priority
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.res.painterResource
+import com.lifeproblemsolver.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +90,7 @@ fun ProblemCard(
                             label = { Text(problem.category) },
                             leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Default.Category,
+                                    painter = painterResource(id = getCategoryIconRes(problem.category)),
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -168,37 +170,36 @@ fun ProblemCard(
     }
 }
 
+private fun getCategoryIconRes(category: String): Int = when (category.trim().lowercase()) {
+    "work" -> R.drawable.ic_category_work
+    "health" -> R.drawable.ic_category_health
+    "relationship" -> R.drawable.ic_category_relationship
+    "finance" -> R.drawable.ic_category_finance
+    "education" -> R.drawable.ic_category_education
+    else -> R.drawable.ic_category_other
+}
+
+private fun getPriorityIconRes(priority: Priority): Int = when (priority) {
+    Priority.LOW -> R.drawable.ic_priority_low
+    Priority.MEDIUM -> R.drawable.ic_priority_medium
+    Priority.HIGH -> R.drawable.ic_priority_high
+    Priority.URGENT -> R.drawable.ic_priority_urgent
+}
+
 @Composable
 private fun PriorityChip(priority: Priority) {
-    val (color, icon, text) = when (priority) {
-        Priority.LOW -> Triple(
-            MaterialTheme.colorScheme.tertiary,
-            Icons.Default.LowPriority,
-            "Low"
-        )
-        Priority.MEDIUM -> Triple(
-            MaterialTheme.colorScheme.primary,
-            Icons.Default.PriorityHigh,
-            "Medium"
-        )
-        Priority.HIGH -> Triple(
-            MaterialTheme.colorScheme.error,
-            Icons.Default.PriorityHigh,
-            "High"
-        )
-        Priority.URGENT -> Triple(
-            MaterialTheme.colorScheme.error,
-            Icons.Default.Warning,
-            "Urgent"
-        )
+    val (color, text) = when (priority) {
+        Priority.LOW -> Pair(MaterialTheme.colorScheme.tertiary, "Low")
+        Priority.MEDIUM -> Pair(MaterialTheme.colorScheme.primary, "Medium")
+        Priority.HIGH -> Pair(MaterialTheme.colorScheme.error, "High")
+        Priority.URGENT -> Pair(MaterialTheme.colorScheme.error, "Urgent")
     }
-    
     AssistChip(
         onClick = { },
         label = { Text(text) },
         leadingIcon = {
             Icon(
-                imageVector = icon,
+                painter = painterResource(id = getPriorityIconRes(priority)),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
                 tint = color
