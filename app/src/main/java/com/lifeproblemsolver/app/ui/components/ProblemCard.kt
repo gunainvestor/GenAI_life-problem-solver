@@ -11,9 +11,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lifeproblemsolver.app.data.model.Problem
 import com.lifeproblemsolver.app.data.model.Priority
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,8 +121,8 @@ fun ProblemCard(
                 )
             }
             
-            // AI suggestion preview
-            if (problem.aiSuggestion.isNotBlank()) {
+            // AI solution preview
+            if (problem.aiSolution?.isNotBlank() == true) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -208,7 +207,7 @@ private fun PriorityChip(priority: Priority) {
     )
 }
 
-private fun formatDate(instant: Instant): String {
-    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${localDateTime.monthNumber}/${localDateTime.dayOfMonth}/${localDateTime.year}"
+private fun formatDate(localDateTime: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    return localDateTime.format(formatter)
 } 

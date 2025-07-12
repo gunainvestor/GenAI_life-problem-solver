@@ -2,6 +2,8 @@ package com.lifeproblemsolver.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lifeproblemsolver.app.data.analytics.AnalyticsService
+import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.data.repository.ProblemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddProblemViewModel @Inject constructor(
-    private val repository: ProblemRepository
+    private val repository: ProblemRepository,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddProblemUiState())
@@ -26,6 +29,17 @@ class AddProblemViewModel @Inject constructor(
 
     fun updateDescription(description: String) {
         _uiState.update { it.copy(description = description) }
+    }
+
+    fun appendToDescription(text: String) {
+        _uiState.update { currentState ->
+            val newDescription = if (currentState.description.isNotBlank()) {
+                currentState.description + " " + text
+            } else {
+                text
+            }
+            currentState.copy(description = newDescription)
+        }
     }
 
     fun updateNotes(notes: String) {
@@ -60,9 +74,19 @@ class AddProblemViewModel @Inject constructor(
                 val problemId = repository.createProblem(
                     title = currentState.title.trim(),
                     description = currentState.description.trim(),
-                    notes = currentState.notes.trim(),
                     category = currentState.category.trim(),
                     priority = currentState.priority
+                )
+                
+                // Save AI solution if it exists
+                if (currentState.aiSuggestion.isNotBlank()) {
+                    repository.updateProblemWithAiSolution(problemId, currentState.aiSuggestion)
+                }
+                
+                // Log analytics event
+                analyticsService.logProblemAdded(
+                    category = currentState.category.trim(),
+                    priority = currentState.priority.name
                 )
                 
                 _uiState.update { 
@@ -98,10 +122,15 @@ class AddProblemViewModel @Inject constructor(
                 // Create a temporary problem for AI analysis
                 val tempProblem = com.lifeproblemsolver.app.data.model.Problem(
                     title = currentState.title.ifBlank { "Problem" },
-                    description = currentState.description.ifBlank { currentState.title }
+                    description = currentState.description.ifBlank { currentState.title },
+                    category = currentState.category,
+                    priority = currentState.priority
                 )
                 
                 val aiSolution = repository.generateAiSolution(tempProblem)
+                
+                // Log analytics event
+                analyticsService.logAiSolutionRequested(currentState.category.trim())
                 
                 _uiState.update { 
                     it.copy(
@@ -109,11 +138,21 @@ class AddProblemViewModel @Inject constructor(
                         aiSuggestion = aiSolution
                     )
                 }
+            } catch (e: RateLimitExceededException) {
+                // Log analytics event
+                analyticsService.logRateLimitReached()
+                
+                _uiState.update { 
+                    it.copy(
+                        isGeneratingAi = false,
+                        error = e.message ?: "Rate limit exceeded"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.update { 
                     it.copy(
                         isGeneratingAi = false,
-                        error = e.message ?: "Failed to generate AI solution"
+                        error = "Failed to generate AI solution: ${e.message}"
                     )
                 }
             }
