@@ -28,7 +28,8 @@ fun ProblemListScreen(
     onNavigateToAddProblem: () -> Unit = {},
     onProblemDetailNav: (Long) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    viewModel: ProblemListViewModel = hiltViewModel()
+    viewModel: ProblemListViewModel = hiltViewModel(),
+    showTopBar: Boolean = true
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val filterType by viewModel.filterType.collectAsStateWithLifecycle()
@@ -36,21 +37,25 @@ fun ProblemListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Life Problem Solver") },
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+            if (showTopBar) {
+                TopAppBar(
+                    title = { Text("Life Problem Solver") },
+                    actions = {
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                        IconButton(onClick = { showFilterDialog = true }) {
+                            Icon(Icons.Default.FilterList, contentDescription = "Filter")
+                        }
                     }
-                    IconButton(onClick = { showFilterDialog = true }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter")
-                    }
-                }
-            )
+                )
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAddProblem) {
-                Icon(Icons.Default.Add, contentDescription = "Add Problem")
+            if (showTopBar) {
+                FloatingActionButton(onClick = onNavigateToAddProblem) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Problem")
+                }
             }
         }
     ) { paddingValues ->

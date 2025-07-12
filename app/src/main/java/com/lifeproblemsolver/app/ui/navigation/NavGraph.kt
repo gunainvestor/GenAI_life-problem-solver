@@ -15,6 +15,8 @@ import androidx.navigation.navArgument
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lifeproblemsolver.app.ui.screens.AddProblemScreen
 import com.lifeproblemsolver.app.ui.screens.ApiKeySettingsScreen
+import com.lifeproblemsolver.app.ui.screens.CalendarScreen
+import com.lifeproblemsolver.app.ui.screens.MainScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemDetailScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemListScreen
 
@@ -30,14 +32,13 @@ fun NavGraph(
         modifier = modifier
     ) {
         composable(Screen.ProblemList.route) {
-            ProblemListScreen(
+            MainScreen(
                 onNavigateToAddProblem = { navController.navigate(Screen.AddProblem.route) },
                 onProblemDetailNav = { problemId -> 
                     Log.d("NavGraph", "Navigating to problem detail with ID: $problemId")
                     navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
                 },
-                onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
-                viewModel = hiltViewModel()
+                onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) }
             )
         }
         
