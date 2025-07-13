@@ -35,4 +35,7 @@ interface ProblemDao {
     
     @Query("DELETE FROM problems")
     suspend fun deleteAllProblems()
+
+    @Query("SELECT * FROM problems LIMIT :limit OFFSET :offset")
+    suspend fun getProblemsPaged(limit: Int, offset: Int): List<Problem>
 } 

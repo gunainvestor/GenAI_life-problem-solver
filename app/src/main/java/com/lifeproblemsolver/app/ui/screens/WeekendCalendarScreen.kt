@@ -1,19 +1,14 @@
 package com.lifeproblemsolver.app.ui.screens
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,13 +20,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Offset
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,11 +37,8 @@ import com.lifeproblemsolver.app.ui.theme.*
 import com.lifeproblemsolver.app.ui.viewmodel.WeekendCalendarViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.launch
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.ceil
+import java.time.YearMonth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,17 +47,10 @@ fun WeekendCalendarScreen(
     viewModel: WeekendCalendarViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var showNoteDialog by remember { mutableStateOf(false) }
     var selectedWeekendForNote by remember { mutableStateOf<WeekendCalendar?>(null) }
     var noteText by remember { mutableStateOf("") }
-
-    // Tooltip state
-    var showTooltip by remember { mutableStateOf(false) }
-    var tooltipText by remember { mutableStateOf("") }
-    var tooltipOffset by remember { mutableStateOf(Offset.Zero) }
-
-    val tooltipDuration = 2000L // 2 seconds
-    val coroutineScope = rememberCoroutineScope()
     
     Column(
         modifier = Modifier
@@ -97,6 +81,8 @@ fun WeekendCalendarScreen(
                 )
             }
         } else {
+            // Group weekends by year and month
+            val weekendsByMonth = uiState.weekends.groupBy { YearMonth.from(it.date) }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -129,7 +115,6 @@ fun WeekendCalendarScreen(
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
-                            
                             Text(
                                 text = "Plan your weekends for the next 5 years. Tap to select or deselect weekends. Long press to add notes.",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -138,12 +123,10 @@ fun WeekendCalendarScreen(
                         }
                     }
                 }
-                
                 // Stats Card
                 item {
                     val selectedCount = uiState.weekends.count { it.isSelected }
                     val totalCount = uiState.weekends.size
-                    
                     PremiumCard(
                         modifier = Modifier.fillMaxWidth(),
                         gradient = SecondaryGradient
@@ -165,7 +148,6 @@ fun WeekendCalendarScreen(
                         }
                     }
                 }
-                
                 // Error Message
                 if (uiState.error != null) {
                     item {
@@ -198,90 +180,93 @@ fun WeekendCalendarScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Close,
-                                        contentDescription = "Dismiss"
+                                        contentDescription = "Close"
                                     )
                                 }
                             }
                         }
                     }
                 }
-                
-                // Weekend Grid
-                val groupedWeekends = uiState.weekends.groupBy { 
-                    Pair(it.date.year, it.date.monthValue) 
-                }.toSortedMap(compareBy<Pair<Int, Int>> { it.first }.thenBy { it.second })
-                groupedWeekends.forEach { (yearMonth, weekends) ->
-                    item {
-                        MonthHeader(
-                            year = yearMonth.first,
-                            month = yearMonth.second,
-                            weekendCount = weekends.size
-                        )
-                    }
-                    item {
-                        val rows = ceil(weekends.size / 7.0).toInt()
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(7),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height((rows * 56).dp), // 56.dp per cell, adjust as needed
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            items(weekends) { weekend ->
-                                WeekendDayCell(
-                                    weekend = weekend,
-                                    onClick = { viewModel.toggleWeekendSelection(weekend.date) },
-                                    onLongClick = { offset ->
-                                        if (weekend.note.isNotEmpty()) {
-                                            tooltipText = weekend.note
-                                            tooltipOffset = offset
-                                            showTooltip = true
-                                            coroutineScope.launch {
-                                                kotlinx.coroutines.delay(tooltipDuration)
-                                                showTooltip = false
-                                                // After tooltip, open dialog
-                                                selectedWeekendForNote = weekend
-                                                noteText = weekend.note
-                                                showNoteDialog = true
-                                            }
-                                        } else {
+                // Month-wise calendar
+                weekendsByMonth.forEach { (yearMonth, weekends) ->
+                    if (weekends.isNotEmpty()) {
+                        item {
+                            MonthHeader(
+                                year = yearMonth.year,
+                                month = yearMonth.monthValue,
+                                weekendCount = weekends.size
+                            )
+                        }
+                        item {
+                            val rows = ceil(weekends.size / 7.0).toInt()
+                            val gridHeight = (rows * 56 + (rows - 1) * 4).dp
+                            
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(7),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(gridHeight)
+                            ) {
+                                items(weekends) { weekend ->
+                                    WeekendDayCell(
+                                        weekend = weekend,
+                                        onClick = { viewModel.toggleWeekendSelection(context, weekend.date) },
+                                        onLongClick = {
                                             selectedWeekendForNote = weekend
                                             noteText = weekend.note
                                             showNoteDialog = true
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
         }
     }
-    // Tooltip Popup
-    if (showTooltip && tooltipText.isNotEmpty()) {
-        NoteTooltip(text = tooltipText, offset = tooltipOffset)
-    }
+    
     // Note Dialog
     if (showNoteDialog && selectedWeekendForNote != null) {
-        NoteDialog(
-            weekend = selectedWeekendForNote!!,
-            currentNote = noteText,
-            onNoteChange = { noteText = it },
-            onDismiss = {
-                showNoteDialog = false
-                selectedWeekendForNote = null
-                noteText = ""
+        AlertDialog(
+            onDismissRequest = { showNoteDialog = false },
+            title = {
+                Text(
+                    text = "Add Note for ${selectedWeekendForNote!!.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
             },
-            onSave = { note ->
-                viewModel.updateWeekendNote(selectedWeekendForNote!!.date, note)
-                showNoteDialog = false
-                selectedWeekendForNote = null
-                noteText = ""
+            text = {
+                OutlinedTextField(
+                    value = noteText,
+                    onValueChange = { noteText = it },
+                    label = { Text("Note") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    maxLines = 5
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedWeekendForNote?.let { weekend ->
+                            viewModel.updateWeekendNote(context, weekend.date, noteText)
+                        }
+                        showNoteDialog = false
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showNoteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }
@@ -328,7 +313,7 @@ private fun WeekendDayCell(
     
     Box(
         modifier = Modifier
-            .aspectRatio(1f)
+            .size(56.dp)
             .clip(CircleShape)
             .background(
                 when {
@@ -406,104 +391,6 @@ private fun WeekendDayCell(
         }
     }
 }
-
-@Composable
-private fun NoteDialog(
-    weekend: WeekendCalendar,
-    currentNote: String,
-    onNoteChange: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit
-) {
-    val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Add Note for ${weekend.date.format(dateFormatter)}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Add a note for this weekend:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                OutlinedTextField(
-                    value = currentNote,
-                    onValueChange = onNoteChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text("Enter your note here...")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { onSave(currentNote) }
-                    ),
-                    maxLines = 4,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onSave(currentNote) }
-            ) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text("Cancel")
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurface
-    )
-} 
-
-@Composable
-private fun NoteTooltip(text: String, offset: Offset) {
-    val density = LocalDensity.current
-    val yOffset = with(density) { offset.y - 60.dp.toPx() }
-    Popup(
-        onDismissRequest = { }
-    ) {
-        Box(
-            modifier = Modifier
-                .offset { IntOffset(offset.x.toInt(), yOffset.toInt()) }
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
-                    RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp)
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                maxLines = 3
-            )
-        }
-    }
-} 
 
 @Composable
 private fun MonthHeader(

@@ -23,9 +23,11 @@ fun MainScreen(
     onProblemDetailNav: (Long) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToWeekendCalendar: () -> Unit,
+    onNavigateToExcelExport: () -> Unit,
     viewModel: ProblemListViewModel = hiltViewModel()
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var showSettingsMenu by remember { mutableStateOf(false) }
     
     val tabs = listOf(
         TabItem(
@@ -56,25 +58,50 @@ fun MainScreen(
                     IconButton(onClick = onNavigateToAddProblem) {
                         Icon(Icons.Default.Add, contentDescription = "Add Problem")
                     }
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        onNavigateToWeekendCalendar()
-                                    },
-                                    onTap = {
-                                        onNavigateToSettings()
-                                    }
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                    Box {
+                        IconButton(
+                            onClick = { showSettingsMenu = true }
+                        ) {
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = "Settings"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showSettingsMenu,
+                            onDismissRequest = { showSettingsMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("API Key Settings") },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToSettings()
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Key, contentDescription = null)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Weekend Calendar") },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToWeekendCalendar()
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.CalendarMonth, contentDescription = null)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Excel Export") },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToExcelExport()
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Download, contentDescription = null)
+                                }
+                            )
+                        }
                     }
                 }
             )

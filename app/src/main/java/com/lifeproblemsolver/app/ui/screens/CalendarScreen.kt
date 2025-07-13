@@ -176,12 +176,14 @@ fun CalendarGrid(
         
         Spacer(modifier = Modifier.height(4.dp))
         
-        // Calendar grid - compact height, no scrolling
+        // Calendar grid - reasonable height constraint
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             horizontalArrangement = Arrangement.spacedBy(1.dp),
             verticalArrangement = Arrangement.spacedBy(1.dp),
-            modifier = Modifier.height(160.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp) // Fixed height for 6 rows of calendar
         ) {
             // Previous month days
             items(daysFromPreviousMonth) {

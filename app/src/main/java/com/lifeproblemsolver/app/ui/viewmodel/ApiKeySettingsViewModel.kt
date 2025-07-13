@@ -1,7 +1,9 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.model.UserApiKey
 import com.lifeproblemsolver.app.data.repository.UsageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ApiKeySettingsViewModel @Inject constructor(
-    private val usageRepository: UsageRepository
+    private val usageRepository: UsageRepository,
+    private val databaseCallback: DatabaseCallback
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ApiKeySettingsUiState())
@@ -78,7 +81,7 @@ class ApiKeySettingsViewModel @Inject constructor(
         }
     }
     
-    fun saveApiKey(apiKey: String, name: String = "API Key") {
+    fun saveApiKey(context: Context, apiKey: String, name: String = "API Key") {
         if (apiKey.isBlank()) return
         
         _uiState.update { it.copy(isLoading = true, error = null) }
@@ -86,6 +89,10 @@ class ApiKeySettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 usageRepository.saveUserApiKey(apiKey, name)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 loadApiKeyStatus()
                 loadAllApiKeys()
             } catch (e: Exception) {
@@ -99,12 +106,16 @@ class ApiKeySettingsViewModel @Inject constructor(
         }
     }
     
-    fun deleteApiKey(keyId: Long) {
+    fun deleteApiKey(context: Context, keyId: Long) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         
         viewModelScope.launch {
             try {
                 usageRepository.deleteApiKey(keyId)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 loadApiKeyStatus()
                 loadAllApiKeys()
             } catch (e: Exception) {
@@ -118,12 +129,16 @@ class ApiKeySettingsViewModel @Inject constructor(
         }
     }
     
-    fun setActiveApiKey(keyId: Long) {
+    fun setActiveApiKey(context: Context, keyId: Long) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         
         viewModelScope.launch {
             try {
                 usageRepository.setActiveApiKey(keyId)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 loadApiKeyStatus()
                 loadAllApiKeys()
             } catch (e: Exception) {
@@ -137,12 +152,16 @@ class ApiKeySettingsViewModel @Inject constructor(
         }
     }
     
-    fun deleteApiKey() {
+    fun deleteApiKey(context: Context) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         
         viewModelScope.launch {
             try {
                 usageRepository.deleteUserApiKey()
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 loadApiKeyStatus()
                 loadAllApiKeys()
             } catch (e: Exception) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,7 @@ fun AddProblemScreen(
     viewModel: AddProblemViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     var showRateLimitAlert by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSuccess) {
@@ -205,17 +207,15 @@ fun AddProblemScreen(
                                 }
                             }
                         }
-                        
+
                         if (uiState.isGeneratingAi) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
-                                    color = Color.White,
-                                    strokeWidth = 2.dp
+                                    color = Color.White
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
@@ -232,7 +232,7 @@ fun AddProblemScreen(
             // Submit Button
             PremiumButton(
                 text = "Submit Problem",
-                onClick = { viewModel.saveProblem() },
+                onClick = { viewModel.saveProblem(context) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading && uiState.title.isNotBlank() && uiState.description.isNotBlank()
             )

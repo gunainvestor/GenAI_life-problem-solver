@@ -1,9 +1,11 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.repository.ProblemRepository
 import com.lifeproblemsolver.app.data.repository.UsageRepository
@@ -19,6 +21,7 @@ import javax.inject.Inject
 class ProblemDetailViewModel @Inject constructor(
     private val problemRepository: ProblemRepository,
     private val usageRepository: UsageRepository,
+    private val databaseCallback: DatabaseCallback,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
@@ -98,7 +101,7 @@ class ProblemDetailViewModel @Inject constructor(
         }
     }
     
-    fun generateAiSolution() {
+    fun generateAiSolution(context: Context) {
         viewModelScope.launch {
             _uiState.update { it.copy(isGeneratingAi = true, error = null) }
             
@@ -107,6 +110,10 @@ class ProblemDetailViewModel @Inject constructor(
                 val solution = problemRepository.generateAiSolution(problem)
                 val updatedProblem = problem.copy(aiSolution = solution, updatedAt = java.time.LocalDateTime.now())
                 problemRepository.updateProblem(updatedProblem)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 _uiState.update { 
                     it.copy(
                         isGeneratingAi = false,
@@ -133,11 +140,15 @@ class ProblemDetailViewModel @Inject constructor(
         }
     }
     
-    fun deleteProblem() {
+    fun deleteProblem(context: Context) {
         viewModelScope.launch {
             try {
                 val problem = uiState.value.problem ?: return@launch
                 problemRepository.deleteProblem(problem)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 _uiState.update { it.copy(shouldNavigateBack = true) }
             } catch (e: Exception) {
                 _uiState.update { 
@@ -147,7 +158,7 @@ class ProblemDetailViewModel @Inject constructor(
         }
     }
     
-    fun markAsResolved() {
+    fun markAsResolved(context: Context) {
         viewModelScope.launch {
             try {
                 problemRepository.markProblemAsResolved(problemId)
@@ -155,6 +166,10 @@ class ProblemDetailViewModel @Inject constructor(
                     isResolved = true,
                     updatedAt = java.time.LocalDateTime.now()
                 )
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
+                
                 _uiState.update { 
                     it.copy(problem = updatedProblem)
                 }

@@ -20,75 +20,87 @@ import com.lifeproblemsolver.app.ui.screens.MainScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemDetailScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemListScreen
 import com.lifeproblemsolver.app.ui.screens.WeekendCalendarScreen
+import com.lifeproblemsolver.app.ui.screens.ExcelExportScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NavGraph(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
-) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.ProblemList.route,
-        modifier = modifier
+class NavGraph {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun NavGraph(
+        navController: NavHostController,
+        modifier: Modifier = Modifier
     ) {
-        composable(Screen.ProblemList.route) {
-            MainScreen(
-                onNavigateToAddProblem = { navController.navigate(Screen.AddProblem.route) },
-                onProblemDetailNav = { problemId -> 
-                    Log.d("NavGraph", "Navigating to problem detail with ID: $problemId")
-                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
-                },
-                onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
-                onNavigateToWeekendCalendar = { navController.navigate(Screen.WeekendCalendar.route) }
-            )
-        }
-        
-        composable(Screen.AddProblem.route) {
-            AddProblemScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onNavigateToProblem = { problemId -> 
-                    Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
-                    // Navigate to problem detail and clear the add problem screen from stack
-                    navController.navigate(Screen.ProblemDetail.createRoute(problemId)) {
-                        popUpTo(Screen.AddProblem.route) { inclusive = true }
+        NavHost(
+            navController = navController,
+            startDestination = Screen.ProblemList.route,
+            modifier = modifier
+        ) {
+            composable(Screen.ProblemList.route) {
+                MainScreen(
+                    onNavigateToAddProblem = { navController.navigate(Screen.AddProblem.route) },
+                    onProblemDetailNav = { problemId -> 
+                        Log.d("NavGraph", "Navigating to problem detail with ID: $problemId")
+                        navController.navigate(Screen.ProblemDetail.createRoute(problemId)) 
+                    },
+                    onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
+                    onNavigateToWeekendCalendar = { navController.navigate(Screen.WeekendCalendar.route) },
+                    onNavigateToExcelExport = { navController.navigate(Screen.ExcelExport.route) }
+                )
+            }
+            
+            composable(Screen.AddProblem.route) {
+                AddProblemScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToProblem = { problemId -> 
+                        Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
+                        // Navigate to problem detail and clear the add problem screen from stack
+                        navController.navigate(Screen.ProblemDetail.createRoute(problemId)) {
+                            popUpTo(Screen.AddProblem.route) { inclusive = true }
+                        }
                     }
-                }
-            )
-        }
-        
-        composable(
-            route = Screen.ProblemDetail.route,
-            arguments = listOf(
-                navArgument("problemId") { type = NavType.LongType }
-            )
-        ) { backStackEntry ->
-            val problemId = backStackEntry.arguments?.getLong("problemId") ?: 0L
-            Log.d("NavGraph", "ProblemDetailScreen received problemId: $problemId")
-            ProblemDetailScreen(
-                problemId = problemId,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        
-        composable(Screen.ApiKeySettings.route) {
-            ApiKeySettingsScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        
-        composable(Screen.WeekendCalendar.route) {
-            WeekendCalendarScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+                )
+            }
+            
+            composable(
+                route = Screen.ProblemDetail.route,
+                arguments = listOf(
+                    navArgument("problemId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val problemId = backStackEntry.arguments?.getLong("problemId") ?: 0L
+                Log.d("NavGraph", "ProblemDetailScreen received problemId: $problemId")
+                ProblemDetailScreen(
+                    problemId = problemId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.ApiKeySettings.route) {
+                ApiKeySettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.WeekendCalendar.route) {
+                WeekendCalendarScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.ExcelExport.route) {
+                ExcelExportScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 } 

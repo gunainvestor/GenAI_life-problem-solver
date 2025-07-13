@@ -1,7 +1,9 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.model.WeekendCalendar
 import com.lifeproblemsolver.app.data.repository.WeekendCalendarRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeekendCalendarViewModel @Inject constructor(
-    private val weekendCalendarRepository: WeekendCalendarRepository
+    private val weekendCalendarRepository: WeekendCalendarRepository,
+    private val databaseCallback: DatabaseCallback
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(WeekendCalendarUiState())
@@ -55,13 +58,16 @@ class WeekendCalendarViewModel @Inject constructor(
         }
     }
     
-    fun toggleWeekendSelection(date: LocalDate) {
+    fun toggleWeekendSelection(context: Context, date: LocalDate) {
         viewModelScope.launch {
             try {
                 val currentWeekend = weekendCalendarRepository.getWeekendByDate(date)
                 val newSelectionState = !(currentWeekend?.isSelected ?: false)
                 
                 weekendCalendarRepository.updateWeekendSelection(date, newSelectionState)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
                 
                 // Update local state immediately for better UX
                 _uiState.update { currentState ->
@@ -82,10 +88,13 @@ class WeekendCalendarViewModel @Inject constructor(
         }
     }
     
-    fun updateWeekendNote(date: LocalDate, note: String) {
+    fun updateWeekendNote(context: Context, date: LocalDate, note: String) {
         viewModelScope.launch {
             try {
                 weekendCalendarRepository.updateWeekendNote(date, note)
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
                 
                 // Update local state immediately for better UX
                 _uiState.update { currentState ->

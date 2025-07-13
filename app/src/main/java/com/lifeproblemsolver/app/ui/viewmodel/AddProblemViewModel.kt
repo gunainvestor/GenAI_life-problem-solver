@@ -1,8 +1,10 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeproblemsolver.app.data.analytics.AnalyticsService
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.model.Priority
 import com.lifeproblemsolver.app.data.repository.ProblemRepository
@@ -19,7 +21,8 @@ import javax.inject.Inject
 class AddProblemViewModel @Inject constructor(
     private val repository: ProblemRepository,
     private val analyticsService: AnalyticsService,
-    private val usageRepository: UsageRepository
+    private val usageRepository: UsageRepository,
+    private val databaseCallback: DatabaseCallback
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddProblemUiState())
@@ -95,7 +98,7 @@ class AddProblemViewModel @Inject constructor(
         _uiState.update { it.copy(priority = priority) }
     }
 
-    fun saveProblem() {
+    fun saveProblem(context: Context) {
         val currentState = _uiState.value
         
         if (currentState.title.isBlank()) {
@@ -129,6 +132,9 @@ class AddProblemViewModel @Inject constructor(
                     category = currentState.category.trim(),
                     priority = currentState.priority.name
                 )
+                
+                // Trigger automatic Excel export
+                databaseCallback.triggerAutoExport(context)
                 
                 _uiState.update { 
                     it.copy(

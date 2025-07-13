@@ -51,7 +51,7 @@ android {
 
     defaultConfig {
         applicationId = "com.lifeproblemsolver.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 3
         versionName = "1.2"
@@ -67,8 +67,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false  // Temporarily disable minification
+            isShrinkResources = false  // Temporarily disable resource shrinking
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -134,6 +134,11 @@ dependencies {
     
     // Date/Time
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    
+    // Excel Export (Apache POI)
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("org.apache.xmlbeans:xmlbeans:5.1.1")
     
     // Firebase Analytics
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))

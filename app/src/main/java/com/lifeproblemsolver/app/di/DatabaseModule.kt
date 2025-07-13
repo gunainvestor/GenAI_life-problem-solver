@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.dao.ProblemDao
 import com.lifeproblemsolver.app.data.dao.UsageStatsDao
 import com.lifeproblemsolver.app.data.dao.UserApiKeyDao
@@ -109,5 +110,11 @@ object DatabaseModule {
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context {
         return context
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDatabaseCallback(): DatabaseCallback {
+        return DatabaseCallback()
     }
 } 

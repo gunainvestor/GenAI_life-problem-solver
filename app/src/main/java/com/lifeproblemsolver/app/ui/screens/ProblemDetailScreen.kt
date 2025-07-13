@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +42,7 @@ fun ProblemDetailScreen(
     viewModel: ProblemDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var showRateLimitAlert by remember { mutableStateOf(false) }
     
     // Handle navigation back when problem is deleted
@@ -75,7 +77,7 @@ fun ProblemDetailScreen(
                 uiState.problem?.let { problem ->
                     if (!problem.isResolved) {
                         IconButton(
-                            onClick = { viewModel.markAsResolved() },
+                            onClick = { viewModel.markAsResolved(context) },
                             modifier = Modifier
                                 .size(40.dp)
                                 .shadow(
@@ -98,7 +100,7 @@ fun ProblemDetailScreen(
                         }
                     }
                     IconButton(
-                        onClick = { viewModel.deleteProblem() },
+                        onClick = { viewModel.deleteProblem(context) },
                         modifier = Modifier
                             .size(40.dp)
                             .shadow(
@@ -197,12 +199,12 @@ fun ProblemDetailScreen(
                         if (uiState.hasReachedRateLimit && !uiState.hasUserApiKey) {
                             showRateLimitAlert = true
                         } else {
-                            viewModel.generateAiSolution()
+                            viewModel.generateAiSolution(context)
                         }
                     },
                     hasReachedRateLimit = uiState.hasReachedRateLimit,
-                    currentRequestCount = uiState.currentRequestCount,
-                    hasUserApiKey = uiState.hasUserApiKey
+                    hasUserApiKey = uiState.hasUserApiKey,
+                    currentRequestCount = uiState.currentRequestCount
                 )
             }
         }

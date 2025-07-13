@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,6 +41,7 @@ fun ApiKeySettingsScreen(
     viewModel: ApiKeySettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     
     Column(
         modifier = Modifier
@@ -164,7 +166,7 @@ fun ApiKeySettingsScreen(
             item {
                 PremiumAddApiKeySection(
                     uiState = uiState,
-                    onAddApiKey = { name, key -> viewModel.saveApiKey(key, name) },
+                    onAddApiKey = { name, key -> viewModel.saveApiKey(context, key, name) },
                     onUpdateName = { /* Not implemented in current ViewModel */ },
                     onUpdateKey = { /* Not implemented in current ViewModel */ }
                 )
@@ -199,8 +201,8 @@ fun ApiKeySettingsScreen(
                 items(uiState.apiKeys) { apiKey ->
                     PremiumApiKeyCard(
                         apiKey = apiKey,
-                        onActivate = { viewModel.setActiveApiKey(apiKey.id) },
-                        onDelete = { viewModel.deleteApiKey(apiKey.id) }
+                        onSetActive = { viewModel.setActiveApiKey(context, apiKey.id) },
+                        onDelete = { viewModel.deleteApiKey(context, apiKey.id) }
                     )
                 }
             }
@@ -287,7 +289,7 @@ private fun PremiumAddApiKeySection(
 @Composable
 private fun PremiumApiKeyCard(
     apiKey: com.lifeproblemsolver.app.data.model.UserApiKey,
-    onActivate: () -> Unit,
+    onSetActive: () -> Unit,
     onDelete: () -> Unit
 ) {
     val animatedElevation by animateFloatAsState(
@@ -364,7 +366,7 @@ private fun PremiumApiKeyCard(
                 ) {
                     if (!apiKey.isActive) {
                         PremiumButton(
-                            onClick = onActivate,
+                            onClick = onSetActive,
                             text = "Activate",
                             icon = Icons.Default.Check,
                             modifier = Modifier.height(36.dp)

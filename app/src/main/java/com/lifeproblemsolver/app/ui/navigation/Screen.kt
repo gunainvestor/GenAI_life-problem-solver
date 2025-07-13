@@ -9,4 +9,5 @@ sealed class Screen(val route: String) {
     }
     object ApiKeySettings : Screen("api_key_settings")
     object WeekendCalendar : Screen("weekend_calendar")
+    object ExcelExport : Screen("excel_export")
 } 
