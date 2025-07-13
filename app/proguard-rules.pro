@@ -20,29 +20,21 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Room
+# Keep Compose-related classes
+-keep class androidx.compose.** { *; }
+-keepclassmembers class androidx.compose.** { *; }
+
+# Keep Room database classes
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *
 -dontwarn androidx.room.paging.**
 
-# Kotlin
--keep class kotlin.Metadata { *; }
--dontwarn kotlin.**
--keepclassmembers class **$WhenMappings {
-    <fields>;
-}
+# Keep Hilt/Dagger classes
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager { *; }
 
-# Hilt
--keep,allowobfuscation,allowshrinking class * extends androidx.lifecycle.ViewModel
--keep,allowobfuscation,allowshrinking class * extends androidx.lifecycle.AndroidViewModel
--keepclassmembers,allowobfuscation,allowshrinking class * extends androidx.lifecycle.ViewModel {
-    <init>(...);
-}
--keepclassmembers,allowobfuscation,allowshrinking class * extends androidx.lifecycle.AndroidViewModel {
-    <init>(android.app.Application);
-}
-
-# Retrofit
+# Keep Retrofit classes
 -keepattributes Signature
 -keepattributes *Annotation*
 -keep class retrofit2.** { *; }
@@ -53,10 +45,115 @@
     @retrofit2.http.* <methods>;
 }
 
-# OkHttp
+# Keep OkHttp classes
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn javax.annotation.**
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
--dontwarn org.openjsse.** 
+-dontwarn org.openjsse.**
+
+# Keep Gson classes
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
+-keep class com.google.gson.** { *; }
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Keep Firebase classes
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# Keep your app's main classes
+-keep class com.lifeproblemsolver.app.** { *; }
+-keepclassmembers class com.lifeproblemsolver.app.** { *; }
+
+# Keep data models
+-keep class com.lifeproblemsolver.app.data.model.** { *; }
+-keepclassmembers class com.lifeproblemsolver.app.data.model.** { *; }
+
+# Keep DAO interfaces
+-keep interface com.lifeproblemsolver.app.data.dao.** { *; }
+
+# Keep ViewModels
+-keep class com.lifeproblemsolver.app.ui.viewmodel.** { *; }
+-keepclassmembers class com.lifeproblemsolver.app.ui.viewmodel.** { *; }
+
+# Keep services
+-keep class com.lifeproblemsolver.app.service.** { *; }
+-keepclassmembers class com.lifeproblemsolver.app.service.** { *; }
+
+# Keep backup service
+-keep class com.lifeproblemsolver.app.data.backup.** { *; }
+-keepclassmembers class com.lifeproblemsolver.app.data.backup.** { *; }
+
+# Keep coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+
+# Keep Kotlin metadata
+-keep class kotlin.Metadata { *; }
+
+# Keep Android lifecycle components
+-keep class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+-keep class * extends androidx.lifecycle.AndroidViewModel {
+    <init>(android.app.Application);
+}
+
+# Keep navigation components
+-keepnames class androidx.navigation.fragment.NavHostFragment
+-keepnames class * extends android.os.Parcelable
+-keepnames class * extends java.io.Serializable
+
+# Keep Compose navigation
+-keep class androidx.navigation.compose.** { *; }
+
+# Keep Material Design components
+-keep class com.google.android.material.** { *; }
+-keep interface com.google.android.material.** { *; }
+
+# Keep date/time libraries
+-keep class org.jetbrains.kotlinx.datetime.** { *; }
+
+# General Android optimizations
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-optimizationpasses 5
+-allowaccessmodification
+
+# Remove logging in release
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+}
+
+# Keep native methods
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep enum classes
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Keep Parcelable classes
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+# Keep Serializable classes
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+} 

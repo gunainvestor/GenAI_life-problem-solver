@@ -39,6 +39,16 @@ android {
         noCompress += listOf("")
     }
 
+    // Signing configuration for Google Play Store
+    signingConfigs {
+        create("release") {
+            storeFile = file("release-keystore.jks")
+            storePassword = "lifeproblemsolver2024"
+            keyAlias = "release-key"
+            keyPassword = "lifeproblemsolver2024"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.lifeproblemsolver.app"
         minSdk = 24
@@ -57,11 +67,17 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
     buildFeatures {
