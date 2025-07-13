@@ -20,7 +20,7 @@
 
 ## 📱 Download
 
-**APK File:** `LifeProblemSolver-v1.1-20250713-1a60507.apk`
+**APK File:** `LifeProblemSolver-v1.1-20250713-0906-1a60507.apk`
 - **Size:** ~47.9 MB
 - **Android Version:** 7.0+ (API 24+)
 - **Architecture:** Universal (ARM, ARM64, x86, x86_64)
@@ -61,7 +61,7 @@ This release includes comprehensive analytics tracking:
 
 - **Landing Page:** https://gunainvestor.github.io/GenAI_life-problem-solver
 - **GitHub Repository:** https://github.com/gunainvestor/GenAI_life-problem-solver
-- **Direct APK Download:** LifeProblemSolver-v1.1-20250713-1a60507.apk
+- **Direct APK Download:** LifeProblemSolver-v1.1-20250713-0906-1a60507.apk
 
 ## 📝 Previous Releases
 
