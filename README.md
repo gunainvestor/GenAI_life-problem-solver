@@ -8,15 +8,16 @@ Your AI-powered life coach that helps you solve any problem instantly with perso
 - **🎤 Voice Input** - Describe problems naturally using voice
 - **📊 Priority Intelligence** - Focus on what's truly urgent
 - **📅 Calendar Integration** - Visual timeline of your problems
+- **📊 Excel & CSV Export** - Export your data for backup and analysis
 - **🔒 Privacy-First** - Everything stays on your device
 - **📱 Always Available** - Your personal AI coach in your pocket
 
 ## 🚀 Quick Start
 
 ### Download the App
-- **APK File**: [LifeProblemSolver-Tag6.apk](LifeProblemSolver-Tag6.apk)
-- **Compatibility**: Android 7.0+
-- **Size**: ~47.8 MB
+- **APK File**: [LifeProblemSolver-v1.3-release.apk](LifeProblemSolver-v1.3-release.apk)
+- **Compatibility**: Android 8.0+ (API 26+)
+- **Size**: ~48.2 MB
 - **Price**: Free to download
 
 ### Installation
@@ -70,9 +71,10 @@ Your AI-powered life coach that helps you solve any problem instantly with perso
 - **Navigation**: Navigation Compose
 
 ### Requirements
-- Android 7.0 (API level 24) or higher
+- Android 8.0 (API level 26) or higher
 - Internet connection for AI features
 - Microphone access for voice input
+- Storage permission for data export features
 
 ## 🌐 Landing Page
 
@@ -101,7 +103,16 @@ Perfect for investor meetings and user acquisition:
 
 ## 🔄 Recent Updates
 
-### Tag 6 (v1.0.6) - Latest Release
+### v1.3 - Latest Release (Latest)
+- ✅ **Fixed Compose layout measurement crash** - Weekend calendar now works smoothly
+- ✅ **Added Excel & CSV Export** - Export all your data for backup and analysis
+- ✅ **Automatic export on data changes** - Your data is automatically backed up
+- ✅ **Improved weekend calendar layout** - Better responsive design for all screen sizes
+- ✅ **Enhanced UI stability** - Fixed layout constraints and measurement issues
+- ✅ **Better error handling** - Improved crash prevention and user experience
+- ✅ **Code optimization** - Cleaner, more maintainable codebase
+
+### Tag 6 (v1.0.6) - Previous Release
 - ✅ **Fixed back button navigation** - Navigation now works correctly
 - ✅ **Uniform card backgrounds** - Consistent design across calendar and problem list
 - ✅ **Enhanced UI/UX** - Clean Material Design 3 implementation
@@ -143,6 +154,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to transform how you solve life's problems?** [Download the app](LifeProblemSolver-Tag6.apk) today!
+**Ready to transform how you solve life's problems?** [Download the app](LifeProblemSolver-v1.3-release.apk) today!
 
 *"Transform how you solve life's problems with AI-powered intelligence and personal organization."* 
