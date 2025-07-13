@@ -34,4 +34,7 @@ interface UserApiKeyDao {
     
     @Query("SELECT COUNT(*) FROM user_api_keys")
     suspend fun getApiKeyCount(): Int
+    
+    @Query("DELETE FROM user_api_keys")
+    suspend fun deleteAllApiKeys()
 } 

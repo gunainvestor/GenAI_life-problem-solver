@@ -32,4 +32,7 @@ interface ProblemDao {
 
     @Query("SELECT DISTINCT category FROM problems ORDER BY category")
     fun getAllCategories(): Flow<List<String>>
+    
+    @Query("DELETE FROM problems")
+    suspend fun deleteAllProblems()
 } 
