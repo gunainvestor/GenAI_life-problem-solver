@@ -67,8 +67,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false  // Temporarily disable minification
-            isShrinkResources = false  // Temporarily disable resource shrinking
+            isMinifyEnabled = false  // Disable minification to avoid missing classes
+            isShrinkResources = false  // Disable resource shrinking
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
