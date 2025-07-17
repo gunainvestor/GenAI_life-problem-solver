@@ -143,6 +143,7 @@ dependencies {
     // Firebase Analytics
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
