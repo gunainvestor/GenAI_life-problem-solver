@@ -76,6 +76,16 @@ fun ExcelExportScreen(
             }
             Text(if (uiState.isCsvLoading) "Exporting..." else "Export All Data to CSV")
         }
+        // Share via Email button
+        Button(
+            onClick = { viewModel.shareLatestCsvFile(context) },
+            enabled = uiState.csvLatestExportFiles?.isNotEmpty() == true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text("Share via Email (CSV)")
+        }
         // Progress indicator for Excel
         if (uiState.isLoading && uiState.progress > 0) {
             Card(

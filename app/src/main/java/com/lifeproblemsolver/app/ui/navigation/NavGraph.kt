@@ -1,5 +1,6 @@
 package com.lifeproblemsolver.app.ui.navigation
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +24,7 @@ import com.lifeproblemsolver.app.ui.screens.WeekendCalendarScreen
 import com.lifeproblemsolver.app.ui.screens.ExcelExportScreen
 
 class NavGraph {
+    @SuppressLint("NotConstructor")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun NavGraph(

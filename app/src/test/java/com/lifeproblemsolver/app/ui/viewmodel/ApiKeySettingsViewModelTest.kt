@@ -7,16 +7,25 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import android.content.Context
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 
 class ApiKeySettingsViewModelTest {
     
     private lateinit var viewModel: ApiKeySettingsViewModel
     private lateinit var usageRepository: UsageRepository
+    private lateinit var databaseCallback: DatabaseCallback
+    private lateinit var context: Context
     
     @Before
     fun setup() {
         usageRepository = mockk(relaxed = true)
-        viewModel = ApiKeySettingsViewModel(usageRepository)
+        databaseCallback = mockk(relaxed = true)
+        context = mockk(relaxed = true)
+        coEvery { usageRepository.getAllApiKeys() } returns MutableStateFlow(emptyList())
+        coEvery { usageRepository.hasUserApiKey() } returns false
+        coEvery { usageRepository.getCurrentRequestCount() } returns 0
+        viewModel = ApiKeySettingsViewModel(usageRepository, databaseCallback)
     }
     
     @Test
@@ -66,16 +75,18 @@ class ApiKeySettingsViewModelTest {
     fun `saveApiKey calls repository and updates state`() = runTest {
         // Given
         val apiKey = "test_api_key"
-        coEvery { usageRepository.saveUserApiKey(apiKey) } returns Unit
+        coEvery { usageRepository.saveUserApiKey(apiKey, any()) } returns Unit
         coEvery { usageRepository.hasUserApiKey() } returns true
-        
+        coEvery { databaseCallback.triggerAutoExport(context) } returns Unit
+
         // When
-        viewModel.saveApiKey(apiKey)
-        
+        viewModel.saveApiKey(context, apiKey)
+
         // Then
-        coVerify { usageRepository.saveUserApiKey(apiKey) }
+        coVerify { usageRepository.saveUserApiKey(apiKey, any()) }
         coVerify { usageRepository.hasUserApiKey() }
         coVerify { usageRepository.getCurrentRequestCount() }
+        coVerify { databaseCallback.triggerAutoExport(context) }
     }
     
     @Test
@@ -83,11 +94,12 @@ class ApiKeySettingsViewModelTest {
         // Given
         val apiKey = "test_api_key"
         val errorMessage = "Failed to save API key"
-        coEvery { usageRepository.saveUserApiKey(apiKey) } throws Exception(errorMessage)
-        
+        coEvery { usageRepository.saveUserApiKey(apiKey, any()) } throws Exception(errorMessage)
+        coEvery { databaseCallback.triggerAutoExport(context) } returns Unit
+
         // When
-        viewModel.saveApiKey(apiKey)
-        
+        viewModel.saveApiKey(context, apiKey)
+
         // Then
         val uiState = viewModel.uiState.value
         assertEquals(false, uiState.isLoading)
@@ -98,12 +110,12 @@ class ApiKeySettingsViewModelTest {
     fun `saveApiKey does nothing when apiKey is blank`() = runTest {
         // Given
         val apiKey = ""
-        
+
         // When
-        viewModel.saveApiKey(apiKey)
-        
+        viewModel.saveApiKey(context, apiKey)
+
         // Then
-        coVerify(exactly = 0) { usageRepository.saveUserApiKey(any()) }
+        coVerify(exactly = 0) { usageRepository.saveUserApiKey(any(), any()) }
     }
     
     @Test
@@ -112,14 +124,16 @@ class ApiKeySettingsViewModelTest {
         coEvery { usageRepository.deleteUserApiKey() } returns Unit
         coEvery { usageRepository.hasUserApiKey() } returns false
         coEvery { usageRepository.getCurrentRequestCount() } returns 0
-        
+        coEvery { databaseCallback.triggerAutoExport(context) } returns Unit
+
         // When
-        viewModel.deleteApiKey()
-        
+        viewModel.deleteApiKey(context)
+
         // Then
         coVerify { usageRepository.deleteUserApiKey() }
         coVerify { usageRepository.hasUserApiKey() }
         coVerify { usageRepository.getCurrentRequestCount() }
+        coVerify { databaseCallback.triggerAutoExport(context) }
     }
     
     @Test
@@ -127,10 +141,11 @@ class ApiKeySettingsViewModelTest {
         // Given
         val errorMessage = "Failed to delete API key"
         coEvery { usageRepository.deleteUserApiKey() } throws Exception(errorMessage)
-        
+        coEvery { databaseCallback.triggerAutoExport(context) } returns Unit
+
         // When
-        viewModel.deleteApiKey()
-        
+        viewModel.deleteApiKey(context)
+
         // Then
         val uiState = viewModel.uiState.value
         assertEquals(false, uiState.isLoading)

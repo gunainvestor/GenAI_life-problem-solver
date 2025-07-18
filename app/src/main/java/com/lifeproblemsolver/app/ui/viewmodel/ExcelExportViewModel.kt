@@ -1,6 +1,8 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
 import android.content.Context
+import android.content.Intent
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeproblemsolver.app.services.ExcelExportService
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 class ExcelExportViewModel : ViewModel() {
     
@@ -137,6 +140,25 @@ class ExcelExportViewModel : ViewModel() {
             csvProgress = 0,
             csvProgressMessage = null
         )
+    }
+
+    fun shareLatestCsvFile(context: Context) {
+        val latestCsv = uiState.value.csvLatestExportFiles?.firstOrNull() ?: return
+        val file = File(latestCsv)
+        val uri = FileProvider.getUriForFile(
+            context,
+            context.packageName + ".fileprovider",
+            file
+        )
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/csv"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("your@email.com"))
+            putExtra(Intent.EXTRA_SUBJECT, "Exported Life Problem Solver Data (CSV)")
+            putExtra(Intent.EXTRA_TEXT, "Please find attached the exported CSV data.")
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, "Send Email"))
     }
 }
 
