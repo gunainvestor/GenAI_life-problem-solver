@@ -4,75 +4,51 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Main background circle with glow -->
+    <!-- Background gradient circle -->
     <path
-        android:fillColor="#FFFFFF"
-        android:fillAlpha="0.3"
-        android:pathData="M54,8a46,46 0 1,0 0,92a46,46 0 1,0 0,-92z"/>
-    
-    <!-- Main background circle -->
+        android:name="bg"
+        android:pathData="M54,4a50,50 0 1,0 0.01,0z"
+        android:fillColor="@android:color/transparent">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="54"
+                android:centerY="54"
+                android:gradientRadius="54"
+                android:startColor="#2D2A6B"
+                android:endColor="#8B5CF6"/>
+        </aapt:attr>
+    </path>
+    <!-- Brain + lightbulb motif (abstract, gold) -->
     <path
-        android:fillColor="#667eea"
-        android:pathData="M54,12a42,42 0 1,0 0,84a42,42 0 1,0 0,-84z"/>
-    
-    <!-- Inner circle with accent -->
+        android:name="bulb"
+        android:pathData="M54,30c-10,0 -18,8 -18,18 0,7 5,13 12,15v5a6,6 0 0,0 12,0v-5c7,-2 12,-8 12,-15 0,-10 -8,-18 -18,-18zm0,36a12,12 0 0,1 -12,-12c0,-6.6 5.4,-12 12,-12s12,5.4 12,12a12,12 0 0,1 -12,12zm-3,8h6v2a3,3 0 0,1 -6,0z"
+        android:fillColor="#FFD700"
+        android:strokeColor="#F5C542"
+        android:strokeWidth="2"/>
+    <!-- Brain lines (subtle, gold) -->
     <path
-        android:fillColor="#4facfe"
-        android:pathData="M54,20a34,34 0 1,0 0,68a34,34 0 1,0 0,-68z"/>
-    
-    <!-- Geometric brain pattern - Left hemisphere -->
+        android:name="brain1"
+        android:pathData="M48,48c0,-3 4,-3 4,0"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M38,32 L42,32 L42,36 L38,36 Z"/>
+        android:name="brain2"
+        android:pathData="M60,48c0,-3 4,-3 4,0"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M36,40 L40,40 L40,44 L36,44 Z"/>
+        android:name="brain3"
+        android:pathData="M54,54c0,3 4,3 4,0"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M40,48 L44,48 L44,52 L40,52 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M38,56 L42,56 L42,60 L38,60 Z"/>
-    
-    <!-- Geometric brain pattern - Right hemisphere -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M66,32 L70,32 L70,36 L66,36 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M68,40 L72,40 L72,44 L68,44 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M64,48 L68,48 L68,52 L64,52 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M66,56 L70,56 L70,60 L66,60 Z"/>
-    
-    <!-- Center connection nodes -->
-    <path
-        android:fillColor="#f093fb"
-        android:pathData="M50,44 L58,44 L58,48 L50,48 Z"/>
-    <path
-        android:fillColor="#f093fb"
-        android:pathData="M52,52 L56,52 L56,56 L52,56 Z"/>
-    
-    <!-- Sparkle effects -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,22 L26,22 L26,26 L22,26 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M82,22 L86,22 L86,26 L82,26 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,82 L26,82 L26,86 L22,86 Z"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M82,82 L86,82 L86,86 L82,86 Z"/>
-    
-    <!-- Center highlight -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,46 L56,46 L56,50 L54,50 Z"/>
+        android:name="brain4"
+        android:pathData="M54,54c0,3 -4,3 -4,0"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
 </vector> 
