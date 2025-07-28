@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class AppTypeConverters {
     
@@ -38,5 +39,25 @@ class AppTypeConverters {
     @TypeConverter
     fun toPriority(value: String): Priority {
         return Priority.valueOf(value)
+    }
+    
+    @TypeConverter
+    fun fromDate(date: Date?): Long? {
+        return date?.time
+    }
+    
+    @TypeConverter
+    fun toDate(timestamp: Long?): Date? {
+        return timestamp?.let { Date(it) }
+    }
+    
+    @TypeConverter
+    fun fromApplicationStatus(status: ApplicationStatus): String {
+        return status.name
+    }
+    
+    @TypeConverter
+    fun toApplicationStatus(value: String): ApplicationStatus {
+        return ApplicationStatus.valueOf(value)
     }
 } 

@@ -43,9 +43,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("release-keystore.jks")
-            storePassword = "lifeproblemsolver2024"
-            keyAlias = "release-key"
-            keyPassword = "lifeproblemsolver2024"
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "lifeproblemsolver2024"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "release-key"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "lifeproblemsolver2024"
         }
     }
 
@@ -53,8 +53,8 @@ android {
         applicationId = "com.lifeproblemsolver.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.6.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

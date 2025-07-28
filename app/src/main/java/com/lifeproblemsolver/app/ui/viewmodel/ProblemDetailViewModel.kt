@@ -78,17 +78,18 @@ class ProblemDetailViewModel @Inject constructor(
         }
     }
     
-    private fun loadProblem() {
+    private     fun loadProblem() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             
             try {
-                val problem = problemRepository.getProblemById(problemId)
-                _uiState.update { 
-                    it.copy(
-                        isLoading = false,
-                        problem = problem
-                    )
+                problemRepository.getProblemById(problemId).collect { problem ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false,
+                            problem = problem
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.update { 
@@ -161,7 +162,7 @@ class ProblemDetailViewModel @Inject constructor(
     fun markAsResolved(context: Context) {
         viewModelScope.launch {
             try {
-                problemRepository.markProblemAsResolved(problemId)
+                problemRepository.markProblemAsResolved(problemId, true)
                 val updatedProblem = uiState.value.problem?.copy(
                     isResolved = true,
                     updatedAt = java.time.LocalDateTime.now()

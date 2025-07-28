@@ -13,11 +13,9 @@ data class Problem(
     val category: String,
     val priority: Priority,
     val isResolved: Boolean = false,
-    val aiSolution: String? = null,
+    val solution: String = "",
+    val aiSolution: String = "",
+    val notes: String = "",
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
-)
-
-enum class Priority {
-    LOW, MEDIUM, HIGH, URGENT
-} 
+) 

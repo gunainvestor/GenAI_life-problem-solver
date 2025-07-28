@@ -1,6 +1,6 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
-import com.lifeproblemsolver.app.data.repository.UsageRepository
+import com.lifeproblemsolver.Life Problem Solver v1.6 app.data.repository.UsageRepository
 import io.mockk.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest

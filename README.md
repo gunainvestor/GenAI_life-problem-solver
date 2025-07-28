@@ -15,7 +15,7 @@ Your AI-powered life coach that helps you solve any problem instantly with perso
 ## 🚀 Quick Start
 
 ### Download the App
-- **APK File**: [LifeProblemSolver-v1.3-release.apk](LifeProblemSolver-v1.3-release.apk)
+- **APK File**: [LifeProblemSolver-v1.6.1-release.apk](LifeProblemSolver-v1.6.1-release.apk)
 - **Compatibility**: Android 8.0+ (API 26+)
 - **Size**: ~48.2 MB
 - **Price**: Free to download
@@ -154,6 +154,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Ready to transform how you solve life's problems?** [Download the app](LifeProblemSolver-v1.3-release.apk) today!
+**Ready to transform how you solve life's problems?** [Download the app](LifeProblemSolver-v1.6.1-release.apk) today!
 
 *"Transform how you solve life's problems with AI-powered intelligence and personal organization."* 
