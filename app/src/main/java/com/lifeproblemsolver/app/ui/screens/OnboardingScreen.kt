@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,8 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lifeproblemsolver.app.ui.viewmodel.DecisionFrequency
+import com.lifeproblemsolver.app.ui.viewmodel.LifestyleQuestionOption
+import com.lifeproblemsolver.app.ui.viewmodel.OnboardingPrompts
 import com.lifeproblemsolver.app.ui.viewmodel.OnboardingUiState
 import com.lifeproblemsolver.app.ui.viewmodel.OnboardingViewModel
 
@@ -67,6 +69,12 @@ fun OnboardingScreen(
 
         OnboardingStepContent(
             state = state,
+            onMorningSelection = viewModel::onMorningFrictionSelected,
+            onWorkDrainSelection = viewModel::onWorkDrainSelected,
+            onEveningLoopSelection = viewModel::onEveningLoopSelected,
+            onStuckAreaSelection = viewModel::onStuckAreaSelected,
+            onPostponedDecisionSelection = viewModel::onPostponedDecisionSelected,
+            onSpiralDurationSelection = viewModel::onSpiralDurationSelected,
             onDailyChange = viewModel::onDailyDecisionsChange,
             onTimePerDecisionSelected = viewModel::onTimePerDecisionSelected,
             onRevisitFrequencySelected = viewModel::onRevisitFrequencySelected,
@@ -142,6 +150,12 @@ private fun ProgressIndicator(currentStep: Int, totalSteps: Int) {
 @Composable
 private fun OnboardingStepContent(
     state: OnboardingUiState,
+    onMorningSelection: (String) -> Unit,
+    onWorkDrainSelection: (String) -> Unit,
+    onEveningLoopSelection: (String) -> Unit,
+    onStuckAreaSelection: (String) -> Unit,
+    onPostponedDecisionSelection: (String) -> Unit,
+    onSpiralDurationSelection: (String) -> Unit,
     onDailyChange: (Float) -> Unit,
     onTimePerDecisionSelected: (Int) -> Unit,
     onRevisitFrequencySelected: (DecisionFrequency) -> Unit,
@@ -151,6 +165,78 @@ private fun OnboardingStepContent(
 ) {
     when (state.currentStep) {
         0 -> QuestionCard(
+            title = "Which morning micro-choice costs you the most?",
+            subtitle = "Let's start with something that happens before 9am.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.morningFriction,
+                    selectedId = state.morningFrictionId,
+                    onSelected = onMorningSelection
+                )
+            }
+        )
+
+        1 -> QuestionCard(
+            title = "Where does decision drag hit at work?",
+            subtitle = "Pick the one that drains you daily.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.workDrain,
+                    selectedId = state.workDrainId,
+                    onSelected = onWorkDrainSelection
+                )
+            }
+        )
+
+        2 -> QuestionCard(
+            title = "Evenings look like…",
+            subtitle = "Decision fatigue shows up differently after work.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.eveningLoop,
+                    selectedId = state.eveningLoopId,
+                    onSelected = onEveningLoopSelection
+                )
+            }
+        )
+
+        3 -> QuestionCard(
+            title = "Where do you feel stuck most often?",
+            subtitle = "Pick the area that sparks the most tiny spirals.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.stuckAreas,
+                    selectedId = state.stuckAreaId,
+                    onSelected = onStuckAreaSelection
+                )
+            }
+        )
+
+        4 -> QuestionCard(
+            title = "Which decision have you postponed 3+ times this week?",
+            subtitle = "The one that keeps tapping you on the shoulder.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.postponedDecisions,
+                    selectedId = state.postponedDecisionId,
+                    onSelected = onPostponedDecisionSelection
+                )
+            }
+        )
+
+        5 -> QuestionCard(
+            title = "What's the longest you've spent stuck on something small?",
+            subtitle = "Be honest — it matters for the math we're about to do.",
+            content = {
+                LifestyleQuestionSelector(
+                    options = OnboardingPrompts.spiralDurations,
+                    selectedId = state.spiralDurationId,
+                    onSelected = onSpiralDurationSelection
+                )
+            }
+        )
+
+        6 -> QuestionCard(
             title = "How many micro-decisions do you make daily?",
             subtitle = "Chats, errands, micro-tasks, meal choices...",
             content = {
@@ -169,7 +255,7 @@ private fun OnboardingStepContent(
             }
         )
 
-        1 -> QuestionCard(
+        7 -> QuestionCard(
             title = "Average time per decision?",
             subtitle = "Being honest helps uncover hidden patterns.",
             content = {
@@ -183,7 +269,7 @@ private fun OnboardingStepContent(
             }
         )
 
-        2 -> QuestionCard(
+        8 -> QuestionCard(
             title = "How often do you revisit decisions?",
             subtitle = "Repeating the same thought spiral counts.",
             content = {
@@ -194,7 +280,7 @@ private fun OnboardingStepContent(
             }
         )
 
-        3 -> QuestionCard(
+        9 -> QuestionCard(
             title = "How often does fatigue delay decisions?",
             subtitle = "Decision fatigue slows everything down.",
             content = {
@@ -205,7 +291,7 @@ private fun OnboardingStepContent(
             }
         )
 
-        4 -> QuestionCard(
+        10 -> QuestionCard(
             title = "How many hours weekly do you overthink tiny stuff?",
             subtitle = "Estimate quickly — we’ll calculate the real cost.",
             content = {
@@ -371,6 +457,23 @@ private fun SummaryCard(
                 value = "${state.calculatedWeeklyMinutes / 60} hours"
             )
 
+            LifestyleSummaryRow(
+                title = "Morning friction",
+                value = OnboardingPrompts.morningFriction.labelFor(state.morningFrictionId)
+            )
+            LifestyleSummaryRow(
+                title = "Work bottleneck",
+                value = OnboardingPrompts.workDrain.labelFor(state.workDrainId)
+            )
+            LifestyleSummaryRow(
+                title = "Most postponed",
+                value = OnboardingPrompts.postponedDecisions.labelFor(state.postponedDecisionId)
+            )
+            LifestyleSummaryRow(
+                title = "Longest spiral",
+                value = OnboardingPrompts.spiralDurations.labelFor(state.spiralDurationId)
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
@@ -388,6 +491,83 @@ private fun SummaryCard(
         }
     }
 }
+
+@Composable
+private fun LifestyleQuestionSelector(
+    options: List<LifestyleQuestionOption>,
+    selectedId: String,
+    onSelected: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        options.chunked(2).forEach { chunk ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                chunk.forEach { option ->
+                    val isSelected = option.id == selectedId
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(96.dp)
+                            .clickable { onSelected(option.id) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = option.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = option.subtitle,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                if (chunk.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LifestyleSummaryRow(
+    title: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    }
+}
+
+private fun List<LifestyleQuestionOption>.labelFor(id: String): String =
+    firstOrNull { it.id == id }?.title ?: firstOrNull()?.title ?: ""
 
 @Composable
 private fun SummaryStat(title: String, value: String) {
