@@ -98,6 +98,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
+    
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Compose
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
@@ -134,6 +137,11 @@ dependencies {
     
     // Date/Time
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    
+    // Charts (Vico)
+    implementation("com.patrykandpatrick.vico:compose:1.13.1")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
+    implementation("com.patrykandpatrick.vico:core:1.13.1")
     
     // Excel Export (Apache POI)
     implementation("org.apache.poi:poi:5.2.3")

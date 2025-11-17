@@ -13,15 +13,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.lifeproblemsolver.app.ui.screens.AddProblemScreen
 import com.lifeproblemsolver.app.ui.screens.ApiKeySettingsScreen
 import com.lifeproblemsolver.app.ui.screens.CalendarScreen
 import com.lifeproblemsolver.app.ui.screens.MainScreen
+import com.lifeproblemsolver.app.ui.screens.OnboardingScreen
 import com.lifeproblemsolver.app.ui.screens.ProblemDetailScreen
-import com.lifeproblemsolver.app.ui.screens.ProblemListScreen
 import com.lifeproblemsolver.app.ui.screens.WeekendCalendarScreen
 import com.lifeproblemsolver.app.ui.screens.ExcelExportScreen
+import com.lifeproblemsolver.app.ui.screens.TrendScreen
+import com.lifeproblemsolver.app.ui.screens.SplashScreen
 
 class NavGraph {
     @SuppressLint("NotConstructor")
@@ -33,9 +34,35 @@ class NavGraph {
     ) {
         NavHost(
             navController = navController,
-            startDestination = Screen.ProblemList.route,
+            startDestination = Screen.Splash.route,
             modifier = modifier
         ) {
+            composable(Screen.Splash.route) {
+                SplashScreen(
+                    onNavigateToOnboarding = {
+                        navController.navigate(Screen.Onboarding.route) {
+                            popUpTo(Screen.Splash.route) { inclusive = true }
+                        }
+                    },
+                    onNavigateToHome = {
+                        navController.navigate(Screen.ProblemList.route) {
+                            popUpTo(Screen.Splash.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(
+                    onFinished = {
+                        navController.navigate(Screen.ProblemList.route) {
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
             composable(Screen.ProblemList.route) {
                 MainScreen(
                     onNavigateToAddProblem = { navController.navigate(Screen.AddProblem.route) },
@@ -45,7 +72,8 @@ class NavGraph {
                     },
                     onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
                     onNavigateToWeekendCalendar = { navController.navigate(Screen.WeekendCalendar.route) },
-                    onNavigateToExcelExport = { navController.navigate(Screen.ExcelExport.route) }
+                    onNavigateToExcelExport = { navController.navigate(Screen.ExcelExport.route) },
+                    onNavigateToTrends = { navController.navigate(Screen.Trends.route) }
                 )
             }
             
@@ -98,6 +126,14 @@ class NavGraph {
             
             composable(Screen.ExcelExport.route) {
                 ExcelExportScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.Trends.route) {
+                TrendScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

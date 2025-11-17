@@ -1,6 +1,8 @@
 package com.lifeproblemsolver.app.ui.navigation
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
+    object Onboarding : Screen("onboarding")
     object ProblemList : Screen("problem_list")
     object Calendar : Screen("calendar")
     object AddProblem : Screen("add_problem")
@@ -10,4 +12,5 @@ sealed class Screen(val route: String) {
     object ApiKeySettings : Screen("api_key_settings")
     object WeekendCalendar : Screen("weekend_calendar")
     object ExcelExport : Screen("excel_export")
+    object Trends : Screen("trends")
 } 
