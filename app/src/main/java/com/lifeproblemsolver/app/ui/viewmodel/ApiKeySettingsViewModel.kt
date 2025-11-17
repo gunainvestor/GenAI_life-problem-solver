@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class ApiKeySettingsViewModel @Inject constructor(
     private val usageRepository: UsageRepository,
     private val databaseCallback: DatabaseCallback

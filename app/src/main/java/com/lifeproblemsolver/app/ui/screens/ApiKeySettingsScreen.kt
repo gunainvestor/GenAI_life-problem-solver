@@ -1,6 +1,7 @@
 package com.lifeproblemsolver.app.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -32,178 +33,260 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.lifeproblemsolver.app.ui.components.*
 import com.lifeproblemsolver.app.ui.theme.*
 import com.lifeproblemsolver.app.ui.viewmodel.ApiKeySettingsViewModel
+import com.lifeproblemsolver.app.ui.viewmodel.DemoModeViewModel
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApiKeySettingsScreen(
     onNavigateBack: () -> Unit,
-    viewModel: ApiKeySettingsViewModel = hiltViewModel()
+    onReplayOnboarding: () -> Unit,
+    viewModel: ApiKeySettingsViewModel = hiltViewModel(),
+    demoModeViewModel: DemoModeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val demoModeState by demoModeViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(demoModeState.message) {
+        demoModeState.message?.let {
+            snackbarHostState.showSnackbar(it)
+            demoModeViewModel.consumeMessage()
+        }
+    }
+
+    LaunchedEffect(demoModeState.shouldNavigateToOnboarding) {
+        if (demoModeState.shouldNavigateToOnboarding) {
+            onReplayOnboarding()
+            demoModeViewModel.consumeNavigation()
+        }
+    }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-                    )
-                )
-            )
-    ) {
-        // Premium Top Bar
-        PremiumTopBar(
-            title = "API Key Settings",
-            onBackClick = {
-                Log.d("ApiKeySettingsScreen", "Back button pressed")
-                onNavigateBack()
-            }
-        )
-        
-        LazyColumn(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                        )
+                    )
+                )
+                .padding(paddingValues)
         ) {
-            // Header
-            item {
-                PremiumCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    gradient = PrimaryGradient
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+            // Premium Top Bar
+            PremiumTopBar(
+                title = "API Key Settings",
+                onBackClick = {
+                    Log.d("ApiKeySettingsScreen", "Back button pressed")
+                    onNavigateBack()
+                }
+            )
+            
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Header
+                item {
+                    PremiumCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        gradient = PrimaryGradient
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(
-                                Icons.Default.Key,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Key,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Text(
+                                    text = "OpenAI API Key",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            
                             Text(
-                                text = "OpenAI API Key",
-                                style = MaterialTheme.typography.headlineSmall,
+                                text = "Add your own OpenAI API key for unlimited AI requests. " +
+                                        "Without a key, you're limited to 5 requests per installation.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                    }
+                }
+            
+                // Current API Key Status
+                item {
+                    PremiumCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        gradient = if (uiState.hasUserApiKey) SuccessGradient else AccentGradient
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "Current Status",
+                                style = MaterialTheme.typography.titleLarge,
                                 color = Color.White,
                                 fontWeight = FontWeight.SemiBold
                             )
-                        }
-                        
-                        Text(
-                            text = "Add your own OpenAI API key for unlimited AI requests. " +
-                                    "Without a key, you're limited to 5 requests per installation.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                    }
-                }
-            }
-            
-            // Current API Key Status
-            item {
-                PremiumCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    gradient = if (uiState.hasUserApiKey) SuccessGradient else AccentGradient
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "Current Status",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        
-                        if (uiState.hasUserApiKey) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                    text = "Using your API key (unlimited requests)",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White
-                                )
-                            }
-                        } else {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                    text = "Using predefined key (${uiState.remainingRequests} requests remaining)",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White
-                                )
+                            
+                            if (uiState.hasUserApiKey) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text(
+                                        text = "Using your API key (unlimited requests)",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White
+                                    )
+                                }
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text(
+                                        text = "Using predefined key (${uiState.remainingRequests} requests remaining)",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            // Add New API Key Section
-            item {
-                PremiumAddApiKeySection(
-                    uiState = uiState,
-                    onAddApiKey = { name, key -> viewModel.saveApiKey(context, key, name) },
-                    onUpdateName = { /* Not implemented in current ViewModel */ },
-                    onUpdateKey = { /* Not implemented in current ViewModel */ }
-                )
-            }
-            
-            // Saved API Keys List
-            if (uiState.apiKeys.isNotEmpty()) {
+
                 item {
                     PremiumCard(
                         modifier = Modifier.fillMaxWidth(),
                         gradient = SecondaryGradient
                     ) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = "Saved API Keys",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            
-                            Text(
-                                text = "Tap on a key to make it active, or use the delete button to remove it.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.SmartDisplay,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = "Demo Mode",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = "Replay onboarding screens anytime",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White.copy(alpha = 0.85f)
+                                    )
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (demoModeState.demoModeEnabled) "Demo mode active" else "Tap to relaunch onboarding",
+                                    color = Color.White
+                                )
+                                Switch(
+                                    checked = demoModeState.demoModeEnabled,
+                                    onCheckedChange = { demoModeViewModel.toggleDemoMode(it) },
+                                    enabled = !demoModeState.isProcessing
+                                )
+                            }
+
+                            if (demoModeState.isProcessing) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
                         }
                     }
                 }
-                
-                items(uiState.apiKeys) { apiKey ->
-                    PremiumApiKeyCard(
-                        apiKey = apiKey,
-                        onSetActive = { viewModel.setActiveApiKey(context, apiKey.id) },
-                        onDelete = { viewModel.deleteApiKey(context, apiKey.id) }
+                // Add New API Key Section
+                item {
+                    PremiumAddApiKeySection(
+                        uiState = uiState,
+                        onAddApiKey = { name, key -> viewModel.saveApiKey(context, key, name) },
+                        onUpdateName = { /* Not implemented in current ViewModel */ },
+                        onUpdateKey = { /* Not implemented in current ViewModel */ }
                     )
+                }
+                
+                // Saved API Keys List
+                if (uiState.apiKeys.isNotEmpty()) {
+                    item {
+                        PremiumCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            gradient = SecondaryGradient
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    text = "Saved API Keys",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                
+                                Text(
+                                    text = "Tap on a key to make it active, or use the delete button to remove it.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    }
+                    
+                    items(uiState.apiKeys) { apiKey ->
+                        PremiumApiKeyCard(
+                            apiKey = apiKey,
+                            onSetActive = { viewModel.setActiveApiKey(context, apiKey.id) },
+                            onDelete = { viewModel.deleteApiKey(context, apiKey.id) }
+                        )
+                    }
                 }
             }
         }

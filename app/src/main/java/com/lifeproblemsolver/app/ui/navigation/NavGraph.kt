@@ -112,6 +112,12 @@ class NavGraph {
                 ApiKeySettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onReplayOnboarding = {
+                        navController.navigate(Screen.Onboarding.route) {
+                            popUpTo(Screen.ApiKeySettings.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

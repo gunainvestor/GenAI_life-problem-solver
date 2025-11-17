@@ -44,5 +44,16 @@ class OnboardingPreferencesRepository @Inject constructor(
             prefs[Keys.RECLAIM_FOCUS] = result.reclaimFocusIntent
         }
     }
+
+    suspend fun setOnboardingCompleted(isCompleted: Boolean) {
+        context.onboardingDataStore.edit { prefs ->
+            prefs[Keys.COMPLETED] = isCompleted
+            if (!isCompleted) {
+                prefs.remove(Keys.DAILY_MINUTES)
+                prefs.remove(Keys.WEEKLY_MINUTES)
+                prefs.remove(Keys.RECLAIM_FOCUS)
+            }
+        }
+    }
 }
 
