@@ -61,7 +61,7 @@ You can customize the landing page by editing `index.html`:
 - Check browser console for errors
 
 **APK download not working?**
-- Verify the APK file exists at `releases/LifeProblemSolver-v1.6.1-release.apk`
+- Verify the APK file exists at `releases/LifeProblemSolver-v1.6.2-release.apk`
 - Update the path in `index.html` if needed
 
 ### Next Steps
