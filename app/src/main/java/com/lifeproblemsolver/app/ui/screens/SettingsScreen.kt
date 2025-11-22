@@ -1,5 +1,6 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,9 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.lifeproblemsolver.app.BuildConfig
 import com.lifeproblemsolver.app.ui.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -257,7 +260,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Version")
-                        Text("1.3", style = MaterialTheme.typography.bodyMedium)
+                        Text(BuildConfig.VERSION_NAME, style = MaterialTheme.typography.bodyMedium)
                     }
                     
                     Spacer(modifier = Modifier.height(8.dp))
