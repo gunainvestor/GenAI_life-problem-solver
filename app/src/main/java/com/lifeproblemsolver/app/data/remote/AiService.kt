@@ -128,10 +128,10 @@ class OpenAiService(private val apiKey: String) : AiService {
             val openAiRequest = OpenAiRequest(
                 model = "gpt-3.5-turbo",
                 messages = listOf(
-                    OpenAiMessage(role = "system", content = "You are a helpful life coach expertise in Productivity, time management, deligation, focus, discipline  that gives structured, actionable solutions to life problems, referencing well-known frameworks where possible.You can mention wel known book reference from where have you picked the recommendation with Book name , authoir name and chapter of the book"),
+                    OpenAiMessage(role = "system", content = "You are a helpful life coach expert in productivity, time management, delegation, focus, and discipline. Provide concise, actionable solutions in bullet point format. Maximum 4 bullet points. Each point should be brief and practical. Reference well-known frameworks or books when relevant (include book name, author, and chapter if applicable)."),
                     OpenAiMessage(role = "user", content = prompt)
                 ),
-                max_tokens = 512,
+                max_tokens = 300,
                 temperature = 0.7
             )
             Log.d(TAG, "Created OpenAI request with model: ${openAiRequest.model}")
@@ -178,7 +178,7 @@ class OpenAiService(private val apiKey: String) : AiService {
                 append("\nCategory: ")
                 append(request.category)
             }
-            append("\n\nPlease provide a structured, actionable solution, referencing any well-known frameworks or methodologies that could help.")
+            append("\n\nProvide a concise solution with maximum 4 bullet points. Each bullet should be brief, actionable, and practical. Format as: • Point 1\n• Point 2\n• Point 3\n• Point 4")
         }
     }
 
