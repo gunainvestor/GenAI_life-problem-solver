@@ -1,15 +1,20 @@
 package com.lifeproblemsolver.app.data.repository
 
+import android.util.Log
 import com.lifeproblemsolver.app.data.dao.ProblemDao
+import com.lifeproblemsolver.app.data.exception.RateLimitExceededException
 import com.lifeproblemsolver.app.data.model.Problem
 import com.lifeproblemsolver.app.data.model.Priority
+import com.lifeproblemsolver.app.data.remote.AiService
+import com.lifeproblemsolver.app.data.remote.SolutionRequest
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProblemRepository @Inject constructor(
-    private val problemDao: ProblemDao
+    private val problemDao: ProblemDao,
+    private val aiService: AiService
 ) {
     
     fun getAllProblems(): Flow<List<Problem>> {
@@ -76,6 +81,10 @@ class ProblemRepository @Inject constructor(
         return problemDao.getProblemsByStatus(isResolved)
     }
     
+    suspend fun getProblemsByDateRange(startDate: String, endDate: String): List<Problem> {
+        return problemDao.getProblemsByDateRange(startDate, endDate)
+    }
+    
     suspend fun createProblem(
         title: String,
         description: String,
@@ -98,9 +107,28 @@ class ProblemRepository @Inject constructor(
     }
     
     suspend fun generateAiSolution(problem: Problem): String {
-        // This would typically call an AI service
-        // For now, return a placeholder
-        return "AI solution placeholder for: ${problem.title}"
+        Log.d("ProblemRepository", "Generating AI solution for problem: ${problem.title}")
+        return try {
+            val problemText = if (problem.description.isNotBlank()) {
+                "${problem.title}: ${problem.description}"
+            } else {
+                problem.title
+            }
+            val request = SolutionRequest(
+                problem = problemText,
+                context = problem.category,
+                category = problem.category
+            )
+            val response = aiService.generateSolution(request)
+            Log.d("ProblemRepository", "AI solution generated successfully")
+            response.solution
+        } catch (e: RateLimitExceededException) {
+            Log.e("ProblemRepository", "Rate limit exceeded", e)
+            throw e
+        } catch (e: Exception) {
+            Log.e("ProblemRepository", "Error generating AI solution", e)
+            throw e
+        }
     }
     
     suspend fun createSampleProblems() {
