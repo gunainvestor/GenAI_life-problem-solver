@@ -204,7 +204,10 @@ fun ProblemDetailScreen(
                     },
                     hasReachedRateLimit = uiState.hasReachedRateLimit,
                     hasUserApiKey = uiState.hasUserApiKey,
-                    currentRequestCount = uiState.currentRequestCount
+                    currentRequestCount = uiState.currentRequestCount,
+                    onRatingSelected = { rating -> 
+                        viewModel.updateSolutionRating(rating)
+                    }
                 )
             }
         }
@@ -244,7 +247,8 @@ private fun PremiumProblemDetailContent(
     onGenerateAiSolution: () -> Unit,
     hasReachedRateLimit: Boolean = false,
     currentRequestCount: Int = 0,
-    hasUserApiKey: Boolean = false
+    hasUserApiKey: Boolean = false,
+    onRatingSelected: (Float) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -266,7 +270,8 @@ private fun PremiumProblemDetailContent(
             onGenerateAiSolution = onGenerateAiSolution,
             hasReachedRateLimit = hasReachedRateLimit,
             currentRequestCount = currentRequestCount,
-            hasUserApiKey = hasUserApiKey
+            hasUserApiKey = hasUserApiKey,
+            onRatingSelected = onRatingSelected
         )
     }
 }
@@ -400,7 +405,8 @@ private fun PremiumAiSolutionSection(
     onGenerateAiSolution: () -> Unit,
     hasReachedRateLimit: Boolean = false,
     currentRequestCount: Int = 0,
-    hasUserApiKey: Boolean = false
+    hasUserApiKey: Boolean = false,
+    onRatingSelected: (Float) -> Unit = {}
 ) {
     PremiumCard(
         modifier = Modifier.fillMaxWidth(),
@@ -486,6 +492,18 @@ private fun PremiumAiSolutionSection(
                             modifier = Modifier.align(Alignment.End)
                         )
                     }
+                }
+                
+                // Rating component - only show if solution exists
+                Spacer(modifier = Modifier.height(8.dp))
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    StarRatingComponent(
+                        rating = problem.solutionRating,
+                        onRatingSelected = onRatingSelected,
+                        enabled = !isGeneratingAi
+                    )
                 }
             } else {
                 PremiumButton(

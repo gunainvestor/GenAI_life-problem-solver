@@ -13,4 +13,5 @@ sealed class Screen(val route: String) {
     object WeekendCalendar : Screen("weekend_calendar")
     object ExcelExport : Screen("excel_export")
     object Trends : Screen("trends")
+    object Analytics : Screen("analytics")
 } 

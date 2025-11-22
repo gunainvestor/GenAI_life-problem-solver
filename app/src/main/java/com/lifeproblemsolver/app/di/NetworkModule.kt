@@ -9,6 +9,7 @@ import com.lifeproblemsolver.app.data.remote.AiService
 import com.lifeproblemsolver.app.data.remote.OpenAiService
 import com.lifeproblemsolver.app.data.remote.RateLimitedAiService
 import com.lifeproblemsolver.app.data.repository.UsageRepository
+import com.lifeproblemsolver.app.services.CsvExportService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,5 +41,11 @@ object NetworkModule {
     @Singleton
     fun provideAnalyticsService(): AnalyticsService {
         return AnalyticsService()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCsvExportService(@ApplicationContext context: Context): CsvExportService {
+        return CsvExportService(context)
     }
 } 

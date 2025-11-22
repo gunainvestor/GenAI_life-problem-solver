@@ -57,4 +57,31 @@ interface ProblemDao {
     
     @Query("SELECT * FROM problems ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
     suspend fun getProblemsPaged(limit: Int, offset: Int): List<Problem>
+    
+    @Query("SELECT * FROM problems WHERE createdAt >= :startDate AND createdAt <= :endDate ORDER BY createdAt ASC")
+    suspend fun getProblemsByDateRange(startDate: String, endDate: String): List<Problem>
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE createdAt >= :startDate AND createdAt <= :endDate")
+    suspend fun getProblemCountByDateRange(startDate: String, endDate: String): Int
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE createdAt >= :startDate AND createdAt <= :endDate AND category = :category")
+    suspend fun getProblemCountByCategoryAndDateRange(startDate: String, endDate: String, category: String): Int
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE createdAt >= :startDate AND createdAt <= :endDate AND priority = :priority")
+    suspend fun getProblemCountByPriorityAndDateRange(startDate: String, endDate: String, priority: String): Int
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE createdAt >= :startDate AND createdAt <= :endDate AND isResolved = :isResolved")
+    suspend fun getProblemCountByStatusAndDateRange(startDate: String, endDate: String, isResolved: Boolean): Int
+    
+    @Query("UPDATE problems SET solutionRating = :rating WHERE id = :id")
+    suspend fun updateSolutionRating(id: Long, rating: Float)
+    
+    @Query("SELECT AVG(solutionRating) FROM problems WHERE solutionRating IS NOT NULL")
+    suspend fun getAverageSolutionRating(): Float?
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE solutionRating IS NOT NULL")
+    suspend fun getRatedProblemsCount(): Int
+    
+    @Query("SELECT COUNT(*) FROM problems WHERE aiSolution IS NOT NULL AND aiSolution != ''")
+    suspend fun getProblemsWithSolutionCount(): Int
 } 

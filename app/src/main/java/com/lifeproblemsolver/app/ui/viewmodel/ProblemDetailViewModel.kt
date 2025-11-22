@@ -182,6 +182,27 @@ class ProblemDetailViewModel @Inject constructor(
         }
     }
     
+    fun updateSolutionRating(rating: Float) {
+        viewModelScope.launch {
+            try {
+                problemRepository.updateSolutionRating(problemId, rating)
+                val updatedProblem = uiState.value.problem?.copy(
+                    solutionRating = rating,
+                    updatedAt = java.time.LocalDateTime.now()
+                )
+                _uiState.update { 
+                    it.copy(problem = updatedProblem)
+                }
+                Log.d(TAG, "Solution rating updated to $rating")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating solution rating", e)
+                _uiState.update { 
+                    it.copy(error = "Failed to save rating: ${e.message}")
+                }
+            }
+        }
+    }
+    
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

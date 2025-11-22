@@ -55,7 +55,7 @@ fun OnboardingScreen(
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
         Text(
-            text = "Let's measure how much time micro-decisions are stealing.",
+            text = "Track where everyday decisions drain your time.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             modifier = Modifier.padding(top = 4.dp)
@@ -166,7 +166,7 @@ private fun OnboardingStepContent(
     when (state.currentStep) {
         0 -> QuestionCard(
             title = "Which morning micro-choice costs you the most?",
-            subtitle = "Let's start with something that happens before 9am.",
+            subtitle = "Pick the micro-choice that hits before 9am.",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.morningFriction,
@@ -178,7 +178,7 @@ private fun OnboardingStepContent(
 
         1 -> QuestionCard(
             title = "Where does decision drag hit at work?",
-            subtitle = "Pick the one that drains you daily.",
+            subtitle = "Which task type stalls you most?",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.workDrain,
@@ -190,7 +190,7 @@ private fun OnboardingStepContent(
 
         2 -> QuestionCard(
             title = "Evenings look like…",
-            subtitle = "Decision fatigue shows up differently after work.",
+            subtitle = "How does tired brain time look?",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.eveningLoop,
@@ -202,7 +202,7 @@ private fun OnboardingStepContent(
 
         3 -> QuestionCard(
             title = "Where do you feel stuck most often?",
-            subtitle = "Pick the area that sparks the most tiny spirals.",
+            subtitle = "Which area triggers micro spirals?",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.stuckAreas,
@@ -214,7 +214,7 @@ private fun OnboardingStepContent(
 
         4 -> QuestionCard(
             title = "Which decision have you postponed 3+ times this week?",
-            subtitle = "The one that keeps tapping you on the shoulder.",
+            subtitle = "Which tiny decision keeps waving?",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.postponedDecisions,
@@ -226,7 +226,7 @@ private fun OnboardingStepContent(
 
         5 -> QuestionCard(
             title = "What's the longest you've spent stuck on something small?",
-            subtitle = "Be honest — it matters for the math we're about to do.",
+            subtitle = "Drop your best guess for a single spiral.",
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.spiralDurations,
@@ -238,7 +238,7 @@ private fun OnboardingStepContent(
 
         6 -> QuestionCard(
             title = "How many micro-decisions do you make daily?",
-            subtitle = "Chats, errands, micro-tasks, meal choices...",
+            subtitle = "Chats, errands, micro tasks, meals…",
             content = {
                 Slider(
                     value = state.dailyDecisions.toFloat(),
@@ -257,7 +257,7 @@ private fun OnboardingStepContent(
 
         7 -> QuestionCard(
             title = "Average time per decision?",
-            subtitle = "Being honest helps uncover hidden patterns.",
+            subtitle = "Quick pick keeps the math honest.",
             content = {
                 val options = listOf(1, 2, 3, 5, 10)
                 OptionRow(
@@ -271,7 +271,7 @@ private fun OnboardingStepContent(
 
         8 -> QuestionCard(
             title = "How often do you revisit decisions?",
-            subtitle = "Repeating the same thought spiral counts.",
+            subtitle = "Include loops and second guessing.",
             content = {
                 FrequencyOptions(
                     selected = state.revisitFrequency,
@@ -282,7 +282,7 @@ private fun OnboardingStepContent(
 
         9 -> QuestionCard(
             title = "How often does fatigue delay decisions?",
-            subtitle = "Decision fatigue slows everything down.",
+            subtitle = "How often do you stall from exhaustion?",
             content = {
                 FrequencyOptions(
                     selected = state.delayFrequency,
@@ -293,7 +293,7 @@ private fun OnboardingStepContent(
 
         10 -> QuestionCard(
             title = "How many hours weekly do you overthink tiny stuff?",
-            subtitle = "Estimate quickly — we’ll calculate the real cost.",
+            subtitle = "Give a fast estimate; we’ll finish the math.",
             content = {
                 Slider(
                     value = state.weeklyOverthinkHours.toFloat(),

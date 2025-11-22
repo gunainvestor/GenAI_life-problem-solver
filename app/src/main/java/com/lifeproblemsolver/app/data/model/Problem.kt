@@ -16,6 +16,7 @@ data class Problem(
     val solution: String = "",
     val aiSolution: String = "",
     val notes: String = "",
+    val solutionRating: Float? = null, // Rating from 1.0 to 5.0
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 ) 

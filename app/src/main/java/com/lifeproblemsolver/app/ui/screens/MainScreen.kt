@@ -24,6 +24,8 @@ fun MainScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToWeekendCalendar: () -> Unit,
     onNavigateToExcelExport: () -> Unit,
+    onNavigateToTrends: () -> Unit,
+    onNavigateToAnalytics: () -> Unit,
     viewModel: ProblemListViewModel = hiltViewModel()
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -49,8 +51,6 @@ fun MainScreen(
                 actions = {
                     VoiceToTextComponent(
                         onTextReceived = { spokenText ->
-                            // For now, just navigate to add problem
-                            // In the future, this could pre-fill the form
                             onNavigateToAddProblem()
                         },
                         modifier = Modifier.size(48.dp)
@@ -99,6 +99,26 @@ fun MainScreen(
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.Download, contentDescription = null)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Trends") },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToTrends()
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Assessment, contentDescription = null)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Analytics") },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToAnalytics()
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Analytics, contentDescription = null)
                                 }
                             )
                         }

@@ -109,6 +109,22 @@ class ProblemRepository @Inject constructor(
         updateProblemSolution(id, solution)
     }
     
+    suspend fun updateSolutionRating(id: Long, rating: Float) {
+        problemDao.updateSolutionRating(id, rating)
+    }
+    
+    suspend fun getAverageSolutionRating(): Float? {
+        return problemDao.getAverageSolutionRating()
+    }
+    
+    suspend fun getRatedProblemsCount(): Int {
+        return problemDao.getRatedProblemsCount()
+    }
+    
+    suspend fun getProblemsWithSolutionCount(): Int {
+        return problemDao.getProblemsWithSolutionCount()
+    }
+    
     suspend fun generateAiSolution(problem: Problem): String {
         Log.d("ProblemRepository", "Generating AI solution for problem: ${problem.title}")
         return try {

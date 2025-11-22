@@ -62,45 +62,45 @@ data class LifestyleQuestionOption(
 
 object OnboardingPrompts {
     val morningFriction = listOf(
-        LifestyleQuestionOption("outfit", "Picking outfits or meals", "Every morning starts with tiny negotiations"),
-        LifestyleQuestionOption("messages", "Catching up on messages", "WhatsApp, Slack, DMs waiting for answers"),
-        LifestyleQuestionOption("planning", "Planning the day", "Calendar, priorities, endless micro planning"),
-        LifestyleQuestionOption("family", "Family / household prep", "Coordinating kids, chores, breakfast chaos")
+        LifestyleQuestionOption("outfit", "Picking outfits or meals", "Micro choices before coffee"),
+        LifestyleQuestionOption("messages", "Catching up on messages", "Pings waiting for answers"),
+        LifestyleQuestionOption("planning", "Planning the day", "Calendar, priorities, to-dos"),
+        LifestyleQuestionOption("family", "Family / household prep", "Getting everyone out the door")
     )
 
     val workDrain = listOf(
-        LifestyleQuestionOption("priorities", "Prioritizing tasks", "Choosing what actually matters drains you"),
-        LifestyleQuestionOption("requests", "Saying yes / no to requests", "Context switching every time someone pings you"),
-        LifestyleQuestionOption("delegation", "Delegating or asking for help", "Deciding who should own what takes energy"),
-        LifestyleQuestionOption("meetings", "Meetings & approvals", "Waiting for decisions keeps work on pause")
+        LifestyleQuestionOption("priorities", "Prioritizing tasks", "What actually matters first?"),
+        LifestyleQuestionOption("requests", "Saying yes / no", "Every new ping needs judgment"),
+        LifestyleQuestionOption("delegation", "Delegating / asking help", "Who should own this?"),
+        LifestyleQuestionOption("meetings", "Meetings & approvals", "Waiting on other decisions")
     )
 
     val eveningLoop = listOf(
-        LifestyleQuestionOption("meals", "Dinner & plans", "Cooking or ordering, social plans, family coordination"),
-        LifestyleQuestionOption("messages", "Replying to people", "Unread chats, DMs, emails nagging you at night"),
-        LifestyleQuestionOption("entertainment", "Scrolling / streaming choices", "Netflix roulette, doom scrolling, nothing satisfying"),
-        LifestyleQuestionOption("chores", "Household chores", "Laundry, cleaning, errands delayed all day")
+        LifestyleQuestionOption("meals", "Dinner & plans", "Cooking, ordering, schedules"),
+        LifestyleQuestionOption("messages", "Replying to people", "Unread chats at night"),
+        LifestyleQuestionOption("entertainment", "Scrolling / streaming", "Netflix roulette again"),
+        LifestyleQuestionOption("chores", "Household chores", "Laundry, cleaning, errands")
     )
 
     val stuckAreas = listOf(
-        LifestyleQuestionOption("health", "Health & habits", "Workout, water, meds, bedtime routines"),
-        LifestyleQuestionOption("career", "Career & work decisions", "Pitching ideas, asking for feedback, new opportunities"),
-        LifestyleQuestionOption("money", "Money & admin", "Payments, paperwork, follow-ups you keep postponing"),
-        LifestyleQuestionOption("relationships", "Relationships & social", "Conversations, boundaries, saying what you mean")
+        LifestyleQuestionOption("health", "Health & habits", "Workout, sleep, routines"),
+        LifestyleQuestionOption("career", "Career & work", "Pitching, asking, deciding"),
+        LifestyleQuestionOption("money", "Money & admin", "Bills, forms, follow-ups"),
+        LifestyleQuestionOption("relationships", "Relationships & social", "Talk, text, boundaries")
     )
 
     val postponedDecisions = listOf(
-        LifestyleQuestionOption("reply", "Replying to someone", "You typed it mentally 3 times already"),
-        LifestyleQuestionOption("appointment", "Booking a call / appointment", "It lives on your list forever"),
-        LifestyleQuestionOption("task", "Finishing a nagging to-do", "Quick task, zero motivation"),
-        LifestyleQuestionOption("planning", "Planning something personal", "Trips, hobbies, passion projects waiting on you")
+        LifestyleQuestionOption("reply", "Replying to someone", "Drafted in your head already"),
+        LifestyleQuestionOption("appointment", "Booking a call", "Still not scheduled"),
+        LifestyleQuestionOption("task", "Finishing a nagging to-do", "Quick but avoided"),
+        LifestyleQuestionOption("planning", "Planning something personal", "Trips, hobbies, goals")
     )
 
     val spiralDurations = listOf(
-        LifestyleQuestionOption("5min", "5 minutes+", "Feels tiny but it compounds fast"),
-        LifestyleQuestionOption("15min", "15 minutes+", "Half a break gone on one choice"),
-        LifestyleQuestionOption("30min", "30 minutes+", "Half an hour lost thinking about it"),
-        LifestyleQuestionOption("60min", "1 hour or more", "An entire focus block gone")
+        LifestyleQuestionOption("5min", "5 minutes+", "Tiny but constant"),
+        LifestyleQuestionOption("15min", "15 minutes+", "Half a break gone"),
+        LifestyleQuestionOption("30min", "30 minutes+", "Half an hour stalled"),
+        LifestyleQuestionOption("60min", "1 hour+", "An entire focus block")
     )
 }
 

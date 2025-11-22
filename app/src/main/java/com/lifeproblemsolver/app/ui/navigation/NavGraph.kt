@@ -23,6 +23,7 @@ import com.lifeproblemsolver.app.ui.screens.WeekendCalendarScreen
 import com.lifeproblemsolver.app.ui.screens.ExcelExportScreen
 import com.lifeproblemsolver.app.ui.screens.TrendScreen
 import com.lifeproblemsolver.app.ui.screens.SplashScreen
+import com.lifeproblemsolver.app.ui.screens.AnalyticsScreen
 
 class NavGraph {
     @SuppressLint("NotConstructor")
@@ -73,7 +74,8 @@ class NavGraph {
                     onNavigateToSettings = { navController.navigate(Screen.ApiKeySettings.route) },
                     onNavigateToWeekendCalendar = { navController.navigate(Screen.WeekendCalendar.route) },
                     onNavigateToExcelExport = { navController.navigate(Screen.ExcelExport.route) },
-                    onNavigateToTrends = { navController.navigate(Screen.Trends.route) }
+                    onNavigateToTrends = { navController.navigate(Screen.Trends.route) },
+                    onNavigateToAnalytics = { navController.navigate(Screen.Analytics.route) }
                 )
             }
             
@@ -140,6 +142,14 @@ class NavGraph {
             
             composable(Screen.Trends.route) {
                 TrendScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.Analytics.route) {
+                AnalyticsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

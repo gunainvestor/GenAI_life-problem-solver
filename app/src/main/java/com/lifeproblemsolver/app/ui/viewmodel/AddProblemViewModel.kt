@@ -1,6 +1,7 @@
 package com.lifeproblemsolver.app.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeproblemsolver.app.data.analytics.AnalyticsService
@@ -101,40 +102,55 @@ class AddProblemViewModel @Inject constructor(
     fun saveProblem(context: Context) {
         val currentState = _uiState.value
         
+        Log.d("AddProblemViewModel", "saveProblem called - title: '${currentState.title}', description: '${currentState.description}', category: '${currentState.category}'")
+        
         if (currentState.title.isBlank()) {
+            Log.w("AddProblemViewModel", "Title is blank")
             _uiState.update { it.copy(error = "Title is required") }
             return
         }
         
         if (currentState.description.isBlank()) {
+            Log.w("AddProblemViewModel", "Description is blank")
             _uiState.update { it.copy(error = "Description is required") }
             return
         }
+
+        // Ensure category is not blank
+        val category = if (currentState.category.isBlank()) "Personal" else currentState.category.trim()
 
         _uiState.update { it.copy(isLoading = true, error = null) }
 
         viewModelScope.launch {
             try {
+                Log.d("AddProblemViewModel", "Creating problem with title: '${currentState.title.trim()}', category: '$category'")
+                
                 val problemId = repository.createProblem(
                     title = currentState.title.trim(),
                     description = currentState.description.trim(),
-                    category = currentState.category.trim(),
-                    priority = currentState.priority
+                    category = category,
+                    priority = currentState.priority,
+                    notes = currentState.notes.trim()
                 )
+                
+                Log.d("AddProblemViewModel", "Problem created with ID: $problemId")
                 
                 // Save AI solution if it exists
                 if (currentState.aiSuggestion.isNotBlank()) {
+                    Log.d("AddProblemViewModel", "Saving AI solution")
                     repository.updateProblemWithAiSolution(problemId, currentState.aiSuggestion)
                 }
                 
                 // Log analytics event
                 analyticsService.logProblemAdded(
-                    category = currentState.category.trim(),
+                    category = category,
                     priority = currentState.priority.name
                 )
                 
                 // Trigger automatic Excel export
                 databaseCallback.triggerAutoExport(context)
+                
+                Log.d("AddProblemViewModel", "Problem saved successfully, ID: $problemId")
                 
                 _uiState.update { 
                     it.copy(
@@ -144,10 +160,11 @@ class AddProblemViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e("AddProblemViewModel", "Error saving problem", e)
                 _uiState.update { 
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to save problem"
+                        error = "Failed to save problem: ${e.message ?: e.javaClass.simpleName}"
                     )
                 }
             }
@@ -219,7 +236,7 @@ data class AddProblemUiState(
     val title: String = "",
     val description: String = "",
     val notes: String = "",
-    val category: String = "General",
+    val category: String = "Personal",
     val priority: Priority = Priority.MEDIUM,
     val aiSuggestion: String = "",
     val isLoading: Boolean = false,

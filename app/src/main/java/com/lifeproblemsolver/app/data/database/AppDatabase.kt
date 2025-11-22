@@ -5,11 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.lifeproblemsolver.app.data.callback.DatabaseCallback
 import com.lifeproblemsolver.app.data.dao.InterviewPrepDao
 import com.lifeproblemsolver.app.data.dao.ProblemDao
 import com.lifeproblemsolver.app.data.dao.UsageStatsDao
 import com.lifeproblemsolver.app.data.dao.UserApiKeyDao
 import com.lifeproblemsolver.app.data.dao.WeekendCalendarDao
+import com.lifeproblemsolver.app.data.migration.getMigrations
 import com.lifeproblemsolver.app.data.model.*
 
 @Database(
@@ -23,7 +25,7 @@ import com.lifeproblemsolver.app.data.model.*
         UserApiKey::class,
         WeekendCalendar::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(AppTypeConverters::class)
@@ -46,7 +48,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "interview_prep_database"
                 )
-                .fallbackToDestructiveMigration()
+                .addMigrations(*getMigrations())
+                .addCallback(DatabaseCallback())
                 .build()
                 INSTANCE = instance
                 instance

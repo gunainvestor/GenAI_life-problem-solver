@@ -350,4 +350,76 @@ fun PremiumTopBar(
 
 enum class StatusType {
     SUCCESS, WARNING, ERROR, INFO
+}
+
+@Composable
+fun StarRatingComponent(
+    rating: Float?,
+    onRatingSelected: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val currentRating = rating ?: 0f
+    var hoveredRating by remember { mutableStateOf(0f) }
+    
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = if (currentRating > 0f) "How helpful was this solution?" else "Rate this solution",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            (1..5).forEach { star ->
+                val starValue = star.toFloat()
+                val isFilled = if (hoveredRating > 0f) {
+                    starValue <= hoveredRating
+                } else {
+                    starValue <= currentRating
+                }
+                
+                Icon(
+                    imageVector = if (isFilled) Icons.Default.Star else Icons.Default.StarBorder,
+                    contentDescription = "$star star${if (star > 1) "s" else ""}",
+                    tint = if (isFilled) Color(0xFFFFD700) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable(enabled = enabled) {
+                            onRatingSelected(starValue)
+                        }
+                )
+            }
+            
+            if (currentRating > 0f) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = String.format("%.1f", currentRating),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        
+        if (currentRating > 0f) {
+            Text(
+                text = when {
+                    currentRating >= 4.5f -> "Excellent! This solution really helped."
+                    currentRating >= 3.5f -> "Good! This solution was helpful."
+                    currentRating >= 2.5f -> "Okay. This solution was somewhat helpful."
+                    else -> "Thanks for your feedback."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 } 
