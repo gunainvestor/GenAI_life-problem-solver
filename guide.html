@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete user guide for Life Problem Solver - Learn how to use the app to solve your life problems with AI-powered solutions.">
+    <title>User Guide - Life Problem Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--bg-light);
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-1);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        /* Guide Sections */
+        .guide-section {
+            padding: 4rem 0;
+            background: var(--bg-white);
+        }
+
+        .guide-section:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .step-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .step-content {
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        .step-content ul {
+            margin-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .step-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screenshot-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 4rem;
+            z-index: 1;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+
+        .tip-box h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .warning-box h3 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box p {
+            color: #78350f;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Life Problem Solver</span>
+                </div>
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>📱 User Guide</h1>
+            <p>Learn how to get the most out of Life Problem Solver</p>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">🚀 Getting Started</h2>
+            
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <h3 class="step-title">Install the App</h3>
+                <div class="step-content">
+                    <p>Download the APK from our landing page and install it on your Android device.</p>
+                    <div class="warning-box">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Installation Note</h3>
+                        <p>Make sure to enable "Install from unknown sources" in your Android settings before installing the APK.</p>
+                    </div>
+                    <div class="screenshot-placeholder">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <h3 class="step-title">Complete Onboarding</h3>
+                <div class="step-content">
+                    <p>When you first open the app, you'll go through a quick onboarding process:</p>
+                    <ul>
+                        <li>Answer questions about your daily decision-making patterns</li>
+                        <li>See how much time you might be losing on small decisions</li>
+                        <li>Get personalized insights about your problem-solving habits</li>
+                    </ul>
+                    <div class="tip-box">
+                        <h3><i class="fas fa-lightbulb"></i> Pro Tip</h3>
+                        <p>Be honest with your answers - this helps the app provide better solutions tailored to your needs!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Adding Problems -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">➕ Adding Problems</h2>
+            
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <h3 class="step-title">Tap the Add Button</h3>
+                <div class="step-content">
+                    <p>On the main screen, tap the <strong>+</strong> button (Floating Action Button) to add a new problem.</p>
+                    <div class="screenshot-placeholder">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <h3 class="step-title">Describe Your Problem</h3>
+                <div class="step-content">
+                    <p>Fill in the problem details:</p>
+                    <ul>
+                        <li><strong>Title:</strong> A clear, concise title for your problem</li>
+                        <li><strong>Description:</strong> Detailed description of the issue</li>
+                        <li><strong>Category:</strong> Choose from Personal, Professional, Health, Financial, Relationships, Education, Technology, or Other</li>
+                        <li><strong>Priority:</strong> Set as Urgent, High, Medium, or Low</li>
+                    </ul>
+                    <div class="tip-box">
+                        <h3><i class="fas fa-microphone"></i> Voice Input</h3>
+                        <p>Use the microphone icon to speak your problem instead of typing! This makes it faster and more natural.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">3</span>
+                <h3 class="step-title">Generate AI Solution</h3>
+                <div class="step-content">
+                    <p>After saving your problem, tap <strong>"Generate AI Solution"</strong> to get personalized advice:</p>
+                    <ul>
+                        <li>The AI analyzes your problem and provides actionable solutions</li>
+                        <li>Solutions are concise (max 4 bullet points) and practical</li>
+                        <li>You can regenerate solutions if you want different suggestions</li>
+                    </ul>
+                    <div class="warning-box">
+                        <h3><i class="fas fa-info-circle"></i> Free Tier Limit</h3>
+                        <p>The free version includes 5 AI solutions per month. Add your own API key in Settings for unlimited solutions!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rating Solutions -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">⭐ Rating Solutions</h2>
+            
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <h3 class="step-title">View Your Solution</h3>
+                <div class="step-content">
+                    <p>After the AI generates a solution, scroll down to see the rating section below the solution text.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <h3 class="step-title">Rate the Solution</h3>
+                <div class="step-content">
+                    <p>Tap the stars (1-5) to rate how helpful the solution was:</p>
+                    <ul>
+                        <li>⭐ 1-2 stars: Not very helpful</li>
+                        <li>⭐⭐⭐ 3 stars: Somewhat helpful</li>
+                        <li>⭐⭐⭐⭐ 4 stars: Very helpful</li>
+                        <li>⭐⭐⭐⭐⭐ 5 stars: Extremely helpful</li>
+                    </ul>
+                    <div class="tip-box">
+                        <h3><i class="fas fa-chart-line"></i> Track Your Progress</h3>
+                        <p>Your ratings help track which solutions work best for you. Check the Analytics screen to see your average rating!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">✨ Key Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI-Powered Solutions</h3>
+                    <p>Get instant, personalized solutions for any life problem using advanced AI technology.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Voice Input</h3>
+                    <p>Describe problems naturally using voice - no typing required!</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Solution Rating</h3>
+                    <p>Rate solutions to track what works best for you and improve over time.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>View your progress, average ratings, and see how the app adds value to your life.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Calendar View</h3>
+                    <p>See your problems organized by date in a visual calendar timeline.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3>Export Data</h3>
+                    <p>Export your problems and solutions to Excel or CSV for backup and analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Managing Problems -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">📋 Managing Problems</h2>
+            
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <h3 class="step-title">View All Problems</h3>
+                <div class="step-content">
+                    <p>On the main screen, you'll see a list of all your problems sorted by date (newest first).</p>
+                    <ul>
+                        <li>Tap any problem to view details and solutions</li>
+                        <li>Use filters to view by category or priority</li>
+                        <li>Search for specific problems using the search function</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <h3 class="step-title">Mark as Resolved</h3>
+                <div class="step-content">
+                    <p>When you've solved a problem, tap the checkmark icon in the problem detail screen to mark it as resolved.</p>
+                    <div class="tip-box">
+                        <h3><i class="fas fa-trophy"></i> Track Your Wins</h3>
+                        <p>Resolved problems are tracked in your Analytics dashboard - see your success rate!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">3</span>
+                <h3 class="step-title">Delete Problems</h3>
+                <div class="step-content">
+                    <p>To delete a problem, open it and tap the delete icon. This action cannot be undone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings & Customization -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">⚙️ Settings & Customization</h2>
+            
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <h3 class="step-title">API Key Settings</h3>
+                <div class="step-content">
+                    <p>Add your own OpenAI API key for unlimited AI solutions:</p>
+                    <ul>
+                        <li>Go to Settings → API Key Settings</li>
+                        <li>Add your OpenAI API key</li>
+                        <li>Enjoy unlimited AI solutions without rate limits!</li>
+                    </ul>
+                    <div class="warning-box">
+                        <h3><i class="fas fa-lock"></i> Privacy</h3>
+                        <p>Your API key is stored securely on your device and never shared with us.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <h3 class="step-title">Analytics Dashboard</h3>
+                <div class="step-content">
+                    <p>Access your analytics from Settings → Analytics to see:</p>
+                    <ul>
+                        <li>Average solution rating</li>
+                        <li>Total problems with solutions</li>
+                        <li>Resolved problems count</li>
+                        <li>Highly rated solutions (4+ stars)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">3</span>
+                <h3 class="step-title">Demo Mode</h3>
+                <div class="step-content">
+                    <p>Want to replay the onboarding? Enable Demo Mode in Settings to see the onboarding flow again.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tips & Best Practices -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">💡 Tips & Best Practices</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-check-circle"></i> Be Specific</h3>
+                    <p>Provide detailed descriptions of your problems. The more context you give, the better the AI solutions will be.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-star"></i> Rate Solutions</h3>
+                    <p>Always rate solutions to help the app learn what works best for you and improve future suggestions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-calendar-check"></i> Regular Review</h3>
+                    <p>Review your problems regularly and mark them as resolved when solved. This helps track your progress.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-microphone-alt"></i> Use Voice Input</h3>
+                    <p>Voice input is faster and more natural. Try describing problems out loud instead of typing.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-download"></i> Backup Your Data</h3>
+                    <p>Regularly export your data to Excel or CSV to keep a backup of all your problems and solutions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-chart-line"></i> Check Analytics</h3>
+                    <p>Visit the Analytics dashboard regularly to see how the app is helping you and track your improvement over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="guide-section">
+        <div class="container">
+            <h2 class="section-title">❓ Frequently Asked Questions</h2>
+            
+            <div class="step-card">
+                <h3 class="step-title">Q: How many AI solutions do I get for free?</h3>
+                <div class="step-content">
+                    <p><strong>A:</strong> The free tier includes 5 AI solutions per month. Add your own OpenAI API key in Settings for unlimited solutions.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3 class="step-title">Q: Is my data private?</h3>
+                <div class="step-content">
+                    <p><strong>A:</strong> Yes! All your data is stored locally on your device. We never access or share your personal problems or solutions.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3 class="step-title">Q: Can I export my data?</h3>
+                <div class="step-content">
+                    <p><strong>A:</strong> Yes! You can export all your problems and solutions to Excel or CSV format from the Export section in Settings.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3 class="step-title">Q: How do I add my own API key?</h3>
+                <div class="step-content">
+                    <p><strong>A:</strong> Go to Settings → API Key Settings → Add New API Key. Enter your OpenAI API key and save it. Your key is stored securely on your device.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3 class="step-title">Q: Can I use the app offline?</h3>
+                <div class="step-content">
+                    <p><strong>A:</strong> You can view and manage your problems offline, but AI solution generation requires an internet connection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="logo" style="justify-content: center; margin-bottom: 2rem;">
+                <i class="fas fa-brain"></i>
+                <span>Life Problem Solver</span>
+            </div>
+            <p style="margin-bottom: 2rem; opacity: 0.9;">
+                Transform how you solve life's problems with AI-powered intelligence.
+            </p>
+            <div class="footer-links">
+                <a href="index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="https://github.com/gunainvestor/GenAI_life-problem-solver" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="PRIVACY_POLICY.md" target="_blank">
+                    <i class="fas fa-shield-alt"></i> Privacy Policy
+                </a>
+            </div>
+            <p style="margin-top: 2rem; opacity: 0.7; font-size: 0.9rem;">
+                © 2025 Life Problem Solver. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
+
