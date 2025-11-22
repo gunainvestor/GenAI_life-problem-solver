@@ -172,6 +172,7 @@
             border-radius: 20px;
             margin: 2rem auto;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
@@ -179,6 +180,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
+            padding: 2rem;
         }
 
         .screenshot-placeholder::before {
@@ -195,6 +197,33 @@
         .screenshot-placeholder i {
             font-size: 4rem;
             z-index: 1;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-placeholder .screenshot-label {
+            z-index: 1;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .screenshot-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .screenshot-caption {
+            margin-top: 1rem;
+            color: var(--text-light);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .screenshot-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
         }
 
         .screenshot-grid {
@@ -395,23 +424,78 @@
                         <li><strong>Category:</strong> Choose from Personal, Professional, Health, Financial, Relationships, Education, Technology, or Other</li>
                         <li><strong>Priority:</strong> Set as Urgent, High, Medium, or Low</li>
                     </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-edit"></i>
+                            <div class="screenshot-label">Edit Text Fields</div>
+                        </div>
+                        <p class="screenshot-caption">Type or edit your problem title and description in the text fields</p>
+                    </div>
+
                     <div class="tip-box">
                         <h3><i class="fas fa-microphone"></i> Voice Input</h3>
-                        <p>Use the microphone icon to speak your problem instead of typing! This makes it faster and more natural.</p>
+                        <p>Use the microphone icon in the top bar to speak your problem instead of typing! This makes it faster and more natural.</p>
+                    </div>
+
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-microphone"></i>
+                            <div class="screenshot-label">Voice Input Icon</div>
+                        </div>
+                        <p class="screenshot-caption">Tap the microphone icon to record your problem using voice</p>
                     </div>
                 </div>
             </div>
 
             <div class="step-card">
                 <span class="step-number">3</span>
+                <h3 class="step-title">Save Your Problem</h3>
+                <div class="step-content">
+                    <p>After filling in all the details, tap the <strong>"Submit Problem"</strong> button to save:</p>
+                    <ul>
+                        <li>Make sure title and description are filled</li>
+                        <li>Select appropriate category and priority</li>
+                        <li>Tap the submit button at the bottom</li>
+                    </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="screenshot-label">Submit Button</div>
+                        </div>
+                        <p class="screenshot-caption">Tap "Submit Problem" button to save your problem</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">4</span>
                 <h3 class="step-title">Generate AI Solution</h3>
                 <div class="step-content">
-                    <p>After saving your problem, tap <strong>"Generate AI Solution"</strong> to get personalized advice:</p>
+                    <p>After saving your problem, you'll be taken to the problem detail screen. Tap <strong>"Generate AI Solution"</strong> to get personalized advice:</p>
                     <ul>
                         <li>The AI analyzes your problem and provides actionable solutions</li>
                         <li>Solutions are concise (max 4 bullet points) and practical</li>
                         <li>You can regenerate solutions if you want different suggestions</li>
                     </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-robot"></i>
+                            <div class="screenshot-label">Generate AI Solution Button</div>
+                        </div>
+                        <p class="screenshot-caption">Tap "Generate AI Solution" button to get AI-powered advice</p>
+                    </div>
+
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-sparkles"></i>
+                            <div class="screenshot-label">AI Solution Generated</div>
+                        </div>
+                        <p class="screenshot-caption">View your personalized AI solution with actionable bullet points</p>
+                    </div>
+
                     <div class="warning-box">
                         <h3><i class="fas fa-info-circle"></i> Free Tier Limit</h3>
                         <p>The free version includes 5 AI solutions per month. Add your own API key in Settings for unlimited solutions!</p>
@@ -438,13 +522,22 @@
                 <span class="step-number">2</span>
                 <h3 class="step-title">Rate the Solution</h3>
                 <div class="step-content">
-                    <p>Tap the stars (1-5) to rate how helpful the solution was:</p>
+                    <p>Below the AI solution, you'll see a rating section. Tap the stars (1-5) to rate how helpful the solution was:</p>
                     <ul>
                         <li>⭐ 1-2 stars: Not very helpful</li>
                         <li>⭐⭐⭐ 3 stars: Somewhat helpful</li>
                         <li>⭐⭐⭐⭐ 4 stars: Very helpful</li>
                         <li>⭐⭐⭐⭐⭐ 5 stars: Extremely helpful</li>
                     </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-star"></i>
+                            <div class="screenshot-label">5-Star Rating</div>
+                        </div>
+                        <p class="screenshot-caption">Tap the stars below the solution to rate how helpful it was</p>
+                    </div>
+
                     <div class="tip-box">
                         <h3><i class="fas fa-chart-line"></i> Track Your Progress</h3>
                         <p>Your ratings help track which solutions work best for you. Check the Analytics screen to see your average rating!</p>
@@ -526,6 +619,35 @@
                         <li>Use filters to view by category or priority</li>
                         <li>Search for specific problems using the search function</li>
                     </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-list"></i>
+                            <div class="screenshot-label">Problem List View</div>
+                        </div>
+                        <p class="screenshot-caption">Browse all your problems in the main list view</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">1.5</span>
+                <h3 class="step-title">Calendar View</h3>
+                <div class="step-content">
+                    <p>Switch to the Calendar tab to see your problems organized by date:</p>
+                    <ul>
+                        <li>View problems on specific dates</li>
+                        <li>See your problem-solving timeline</li>
+                        <li>Tap any date to view problems from that day</li>
+                    </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div class="screenshot-label">Calendar View</div>
+                        </div>
+                        <p class="screenshot-caption">Switch to Calendar tab to see problems organized by date</p>
+                    </div>
                 </div>
             </div>
 
@@ -533,7 +655,16 @@
                 <span class="step-number">2</span>
                 <h3 class="step-title">Mark as Resolved</h3>
                 <div class="step-content">
-                    <p>When you've solved a problem, tap the checkmark icon in the problem detail screen to mark it as resolved.</p>
+                    <p>When you've solved a problem, tap the checkmark icon in the top bar of the problem detail screen to mark it as resolved.</p>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="screenshot-label">Mark as Resolved</div>
+                        </div>
+                        <p class="screenshot-caption">Tap the checkmark icon in the problem detail screen to mark as resolved</p>
+                    </div>
+
                     <div class="tip-box">
                         <h3><i class="fas fa-trophy"></i> Track Your Wins</h3>
                         <p>Resolved problems are tracked in your Analytics dashboard - see your success rate!</p>
@@ -545,7 +676,15 @@
                 <span class="step-number">3</span>
                 <h3 class="step-title">Delete Problems</h3>
                 <div class="step-content">
-                    <p>To delete a problem, open it and tap the delete icon. This action cannot be undone.</p>
+                    <p>To delete a problem, open it and tap the delete icon (trash can) in the top bar. This action cannot be undone.</p>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-trash"></i>
+                            <div class="screenshot-label">Delete Problem</div>
+                        </div>
+                        <p class="screenshot-caption">Tap the delete icon to remove a problem permanently</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -584,6 +723,14 @@
                         <li>Resolved problems count</li>
                         <li>Highly rated solutions (4+ stars)</li>
                     </ul>
+                    
+                    <div class="screenshot-container">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-chart-bar"></i>
+                            <div class="screenshot-label">Analytics Dashboard</div>
+                        </div>
+                        <p class="screenshot-caption">View your progress and value metrics in the Analytics screen</p>
+                    </div>
                 </div>
             </div>
 
