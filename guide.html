@@ -899,6 +899,55 @@
             </p>
         </div>
     </footer>
+
+    <script>
+        // Helper function to load images with fallback (supports both .jpg and .png)
+        function loadImageWithFallback(imgElement, baseName) {
+            const formats = ['jpg', 'png', 'jpeg'];
+            let currentFormat = 0;
+            
+            function tryNextFormat() {
+                if (currentFormat >= formats.length) {
+                    // All formats failed, show placeholder
+                    imgElement.style.display = 'none';
+                    const placeholder = imgElement.nextElementSibling;
+                    if (placeholder && placeholder.classList.contains('screenshot-placeholder')) {
+                        placeholder.style.display = 'flex';
+                    }
+                    return;
+                }
+                
+                const format = formats[currentFormat];
+                const testImg = new Image();
+                testImg.onload = function() {
+                    imgElement.src = `images/screenshots/${baseName}.${format}`;
+                    imgElement.style.display = 'block';
+                    // Hide placeholder if image loads successfully
+                    const placeholder = imgElement.nextElementSibling;
+                    if (placeholder && placeholder.classList.contains('screenshot-placeholder')) {
+                        placeholder.style.display = 'none';
+                    }
+                };
+                testImg.onerror = function() {
+                    currentFormat++;
+                    tryNextFormat();
+                };
+                testImg.src = `images/screenshots/${baseName}.${format}`;
+            }
+            
+            tryNextFormat();
+        }
+        
+        // Load all screenshots with format fallback when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle images with data-imagename attribute
+            const screenshotImages = document.querySelectorAll('img[data-imagename]');
+            screenshotImages.forEach(img => {
+                const baseName = img.getAttribute('data-imagename');
+                loadImageWithFallback(img, baseName);
+            });
+        });
+    </script>
 </body>
 </html>
 
