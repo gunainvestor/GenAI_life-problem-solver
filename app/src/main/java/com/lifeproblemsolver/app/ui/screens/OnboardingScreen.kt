@@ -1,5 +1,7 @@
 package com.lifeproblemsolver.app.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,9 +31,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.lifeproblemsolver.app.ui.theme.*
 import com.lifeproblemsolver.app.ui.viewmodel.DecisionFrequency
 import com.lifeproblemsolver.app.ui.viewmodel.LifestyleQuestionOption
 import com.lifeproblemsolver.app.ui.viewmodel.OnboardingPrompts
@@ -45,28 +54,19 @@ fun OnboardingScreen(
 ) {
     val state = viewModel.uiState
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 32.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    )
+                )
+            )
     ) {
-        Text(
-            text = "Decision Detox",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-        )
-        Text(
-            text = "Track where everyday decisions drain your time.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        ProgressIndicator(currentStep = state.currentStep + 1, totalSteps = state.totalSteps)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // Full-screen question content
         OnboardingStepContent(
             state = state,
             onMorningSelection = viewModel::onMorningFrictionSelected,
@@ -83,15 +83,26 @@ fun OnboardingScreen(
             onReclaimIntentChange = viewModel::onReclaimFocusIntentChange
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        // Progress indicator at top
+        ProgressIndicator(
+            currentStep = state.currentStep + 1,
+            totalSteps = state.totalSteps,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
+        )
 
+        // Navigation buttons at bottom
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (state.currentStep > 0) {
                 TextButton(onClick = viewModel::previousStep) {
-                    Text("Back")
+                    Text("Back", color = Color.White)
                 }
             } else {
                 Spacer(modifier = Modifier.size(1.dp))
@@ -105,7 +116,11 @@ fun OnboardingScreen(
                         viewModel.nextStep()
                     }
                 },
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(24.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = PrimaryBlue
+                )
             ) {
                 if (state.currentStep == state.totalSteps - 1) {
                     if (state.isSaving) {
@@ -114,12 +129,12 @@ fun OnboardingScreen(
                                 .size(20.dp)
                                 .padding(end = 8.dp),
                             strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = PrimaryBlue
                         )
                     }
-                    Text(if (state.isSaving) "Finishing..." else "See Lost Time")
+                    Text(if (state.isSaving) "Finishing..." else "See Lost Time", fontWeight = FontWeight.Bold)
                 } else {
-                    Text("Next")
+                    Text("Next", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -127,20 +142,27 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun ProgressIndicator(currentStep: Int, totalSteps: Int) {
+private fun ProgressIndicator(currentStep: Int, totalSteps: Int, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         repeat(totalSteps) { index ->
             val isActive = index < currentStep
+            val animatedWeight by animateFloatAsState(
+                targetValue = if (isActive) 1f else 0.3f,
+                animationSpec = tween(300),
+                label = "progress"
+            )
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(6.dp)
+                    .weight(animatedWeight)
+                    .height(4.dp)
                     .background(
-                        color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(12.dp)
+                        color = if (isActive) Color.White else Color.White.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(2.dp)
                     )
             )
         }
@@ -164,9 +186,10 @@ private fun OnboardingStepContent(
     onReclaimIntentChange: (String) -> Unit
 ) {
     when (state.currentStep) {
-        0 -> QuestionCard(
-            title = "Which morning micro-choice costs you the most?",
-            subtitle = "Pick the micro-choice that hits before 9am.",
+        0 -> FullScreenQuestionCard(
+            question = "What drains you before 9am?",
+            icon = Icons.Default.WbSunny,
+            gradient = PrimaryGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.morningFriction,
@@ -176,9 +199,10 @@ private fun OnboardingStepContent(
             }
         )
 
-        1 -> QuestionCard(
-            title = "Where does decision drag hit at work?",
-            subtitle = "Which task type stalls you most?",
+        1 -> FullScreenQuestionCard(
+            question = "Where does work stall you most?",
+            icon = Icons.Default.Work,
+            gradient = AccentGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.workDrain,
@@ -188,9 +212,10 @@ private fun OnboardingStepContent(
             }
         )
 
-        2 -> QuestionCard(
-            title = "Evenings look like…",
-            subtitle = "How does tired brain time look?",
+        2 -> FullScreenQuestionCard(
+            question = "What loops in your tired brain?",
+            icon = Icons.Default.Nightlight,
+            gradient = SecondaryGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.eveningLoop,
@@ -200,9 +225,10 @@ private fun OnboardingStepContent(
             }
         )
 
-        3 -> QuestionCard(
-            title = "Where do you feel stuck most often?",
-            subtitle = "Which area triggers micro spirals?",
+        3 -> FullScreenQuestionCard(
+            question = "Where do you spiral most?",
+            icon = Icons.Default.Psychology,
+            gradient = AccentGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.stuckAreas,
@@ -212,9 +238,10 @@ private fun OnboardingStepContent(
             }
         )
 
-        4 -> QuestionCard(
-            title = "Which decision have you postponed 3+ times this week?",
-            subtitle = "Which tiny decision keeps waving?",
+        4 -> FullScreenQuestionCard(
+            question = "What have you postponed 3+ times?",
+            icon = Icons.Default.Schedule,
+            gradient = PrimaryGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.postponedDecisions,
@@ -224,9 +251,10 @@ private fun OnboardingStepContent(
             }
         )
 
-        5 -> QuestionCard(
-            title = "What's the longest you've spent stuck on something small?",
-            subtitle = "Drop your best guess for a single spiral.",
+        5 -> FullScreenQuestionCard(
+            question = "Longest time stuck on something tiny?",
+            icon = Icons.Default.Timer,
+            gradient = SecondaryGradient,
             content = {
                 LifestyleQuestionSelector(
                     options = OnboardingPrompts.spiralDurations,
@@ -311,6 +339,53 @@ private fun OnboardingStepContent(
         )
 
         else -> SummaryCard(state = state, onIntentChange = onReclaimIntentChange)
+    }
+}
+
+@Composable
+private fun FullScreenQuestionCard(
+    question: String,
+    icon: ImageVector,
+    gradient: Brush,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(gradient)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Large icon
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(120.dp),
+                tint = Color.White.copy(alpha = 0.9f)
+            )
+            
+            Spacer(modifier = Modifier.height(40.dp))
+            
+            // One-liner question
+            Text(
+                text = question,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            
+            Spacer(modifier = Modifier.height(48.dp))
+            
+            // Options content
+            content()
+        }
     }
 }
 
@@ -498,39 +573,53 @@ private fun LifestyleQuestionSelector(
     selectedId: String,
     onSelected: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         options.chunked(2).forEach { chunk ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 chunk.forEach { option ->
                     val isSelected = option.id == selectedId
+                    val animatedElevation by animateFloatAsState(
+                        targetValue = if (isSelected) 12f else 4f,
+                        animationSpec = tween(300),
+                        label = "elevation"
+                    )
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .height(96.dp)
+                            .height(120.dp)
+                            .shadow(
+                                elevation = animatedElevation.dp,
+                                shape = RoundedCornerShape(20.dp),
+                                spotColor = if (isSelected) Color.White.copy(alpha = 0.5f) else Color.Transparent
+                            )
                             .clickable { onSelected(option.id) },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                        )
+                            containerColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.9f)
+                        ),
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp),
+                                .padding(20.dp),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
                                 text = option.title,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) PrimaryBlue else MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = option.subtitle,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (isSelected) PrimaryBlue.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
