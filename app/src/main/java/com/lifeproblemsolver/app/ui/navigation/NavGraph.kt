@@ -83,10 +83,10 @@ class NavGraph {
                         navController.popBackStack()
                     },
                     onNavigateToProblem = { problemId -> 
-                        Log.d("NavGraph", "AddProblemScreen navigating to problem detail with ID: $problemId")
-                        // Navigate to problem detail and clear the add problem screen from stack
-                        navController.navigate(Screen.ProblemDetail.createRoute(problemId)) {
-                            popUpTo(Screen.AddProblem.route) { inclusive = true }
+                        Log.d("NavGraph", "AddProblemScreen - problem saved with ID: $problemId, navigating back to problem list")
+                        // Navigate back to problem list so user can see the newly added problem
+                        navController.navigate(Screen.ProblemList.route) {
+                            popUpTo(Screen.ProblemList.route) { inclusive = false }
                         }
                     }
                 )

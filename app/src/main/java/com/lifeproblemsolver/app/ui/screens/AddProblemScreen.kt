@@ -40,16 +40,26 @@ fun AddProblemScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var showRateLimitAlert by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.isSuccess) {
+    LaunchedEffect(uiState.isSuccess, uiState.createdProblemId) {
         if (uiState.isSuccess && uiState.createdProblemId > 0) {
+            android.util.Log.d("AddProblemScreen", "Problem saved successfully, navigating with ID: ${uiState.createdProblemId}")
+            // Small delay to ensure state is updated
+            kotlinx.coroutines.delay(100)
             onNavigateToProblem(uiState.createdProblemId)
+            // Reset state after navigation
+            viewModel.resetState()
         }
     }
 
     LaunchedEffect(uiState.error) {
-        if (uiState.error != null) {
-            // Show error snackbar or handle error
+        uiState.error?.let { errorMessage ->
+            snackbarHostState.showSnackbar(
+                message = errorMessage,
+                duration = SnackbarDuration.Long
+            )
+            viewModel.clearError()
         }
     }
 
@@ -66,14 +76,11 @@ fun AddProblemScreen(
                         },
                         modifier = Modifier.size(48.dp)
                     )
-                    IconButton(onClick = { /* Share or other action */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Share"
-                        )
-                    }
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
         Column(
@@ -232,7 +239,10 @@ fun AddProblemScreen(
             // Submit Button
             PremiumButton(
                 text = "Submit Problem",
-                onClick = { viewModel.saveProblem(context) },
+                onClick = { 
+                    android.util.Log.d("AddProblemScreen", "Submit button clicked")
+                    viewModel.saveProblem(context) 
+                },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isLoading && uiState.title.isNotBlank() && uiState.description.isNotBlank()
             )

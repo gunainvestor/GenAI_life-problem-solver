@@ -92,6 +92,7 @@ class ProblemRepository @Inject constructor(
         priority: Priority,
         notes: String = ""
     ): Long {
+        android.util.Log.d("ProblemRepository", "createProblem called - title: '$title', category: '$category'")
         val problem = Problem(
             title = title,
             description = description,
@@ -99,7 +100,9 @@ class ProblemRepository @Inject constructor(
             priority = priority,
             notes = notes
         )
-        return insertProblem(problem)
+        val problemId = insertProblem(problem)
+        android.util.Log.d("ProblemRepository", "Problem inserted with ID: $problemId")
+        return problemId
     }
     
     suspend fun updateProblemWithAiSolution(id: Long, solution: String) {
